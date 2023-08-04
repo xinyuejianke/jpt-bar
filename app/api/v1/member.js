@@ -34,13 +34,23 @@ memberApi.linDelete(
   }
 )
 
-memberApi.get('/:id', async ctx => {
+memberApi.get('/:id', async (ctx) => {
   await new PositiveIdValidator().validate(ctx)
   const id = getSafeParamId(ctx);
   const member = await memberDto.getMember(id)
 
   ctx.json(member)
 })
+
+memberApi.linGet(
+  'getAllMembers',
+  '/list/all',
+  memberApi.permission('访问所有members'),
+  groupRequired,
+  async (ctx) => {
+    ctx.json(await memberDto.getMembers())
+  }
+)
 
 memberApi.put('/:id', async (ctx) => {
   const v = await new PositiveIdValidator().validate(ctx)

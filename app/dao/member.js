@@ -13,7 +13,7 @@ class MemberDao {
   }
 
   async getMembers() {
-    return await MemberModel.findAll()
+    return await MemberModel.findAll();
   }
 
   async createMember(v) {
