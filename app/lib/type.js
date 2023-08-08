@@ -4,7 +4,8 @@ const MountType = {
 };
 
 const IdentityType = {
-  Password: 'USERNAME_PASSWORD'
+  Password: 'USERNAME_PASSWORD',
+  Wechat: 'WECHAT'
 };
 
 const GroupLevel = {

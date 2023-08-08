@@ -4,7 +4,9 @@ import {
   NotFound,
   Forbidden,
   config,
-  getTokens
+  getTokens,
+  AuthFailed,
+  logger
 } from 'lin-mizar';
 import { UserModel, UserIdentityModel } from '../model/user';
 import { UserGroupModel } from '../model/user-group';
@@ -17,9 +19,11 @@ import { MountType, GroupLevel, IdentityType } from '../lib/type';
 import { Op } from 'sequelize';
 import { set, has, uniq } from 'lodash';
 import { verifyCaptcha } from '../lib/captcha';
+import axios from 'axios';
+import util from 'util'
 
 class UserDao {
-  async createUser (v) {
+  async createUser(v) {
     let user = await UserModel.findOne({
       where: {
         username: v.get('body.username')
@@ -58,7 +62,7 @@ class UserDao {
     await this.registerUser(v);
   }
 
-  async getTokens (v, ctx) {
+  async getTokens(v, ctx) {
     if (config.getItem('loginCaptchaEnabled', false)) {
       const tag = ctx.req.headers.tag;
       const captcha = v.get('body.captcha');
@@ -83,7 +87,7 @@ class UserDao {
     };
   }
 
-  async updateUser (ctx, v) {
+  async updateUser(ctx, v) {
     const user = ctx.currentUser;
     if (v.get('body.username') && user.username !== v.get('body.username')) {
       const exit = await UserModel.findOne({
@@ -120,7 +124,7 @@ class UserDao {
     await user.save();
   }
 
-  async getInformation (ctx) {
+  async getInformation(ctx) {
     const user = ctx.currentUser;
 
     const userGroup = await UserGroupModel.findAll({
@@ -141,7 +145,7 @@ class UserDao {
     return user;
   }
 
-  async getPermissions (ctx) {
+  async getPermissions(ctx) {
     const user = ctx.currentUser;
     const userGroup = await UserGroupModel.findAll({
       where: {
@@ -195,7 +199,7 @@ class UserDao {
     return user;
   }
 
-  async registerUser (v) {
+  async registerUser(v) {
     let transaction;
     try {
       transaction = await sequelize.transaction();
@@ -252,7 +256,92 @@ class UserDao {
     return true;
   }
 
-  formatPermissions (permissions) {
+  async registerWechatUser(v) {
+    logger.debug('Start to regiester wechat user')
+
+    const wechatConfig = config.getItem('wechat')
+    const url = util.format(wechatConfig.loginUrl, wechatConfig.appId, wechatConfig.appSecret, v.get('body.account'))
+
+    const result = await axios.get(url)
+    if (result.status !== 200) {
+      throw new NotFound({ code: 40401 })
+    }
+    const errcode = result.data.errcode
+    logger.debug(`Get wechat response errcode(undefined means succeed): ${errcode}`)
+    if (errcode) {
+      throw new AuthFailed({ message: errcode })
+    }
+    const openId = result.data.openid
+    if (openId) {
+      logger.debug(`Get openId: ${generate(openId)}`)
+    }
+
+    // if user is existed then getToken, else create new user first then getToken
+    let user = await UserModel.findOne({ where: { username: openId } })
+    if (!user) {
+      user = await this.createWechatUser(openId)
+    }
+    logger.debug(`user_id: ${user.id}`)
+    return await this.getWechatTokens(user.id, openId)
+  }
+
+  async createWechatUser(openId) {
+    let transaction;
+    try {
+      transaction = await sequelize.transaction();
+
+      const { id: user_id } = await UserModel.create(
+        { username: openId },
+        { transaction }
+      );
+
+      await UserIdentityModel.create(
+        {
+          user_id,
+          identity_type: IdentityType.Wechat,
+          identifier: openId,
+          credential: generate(openId)
+        },
+        { transaction }
+      );
+
+      // 认加入游客分组
+      const guest = await GroupModel.findOne({ where: { level: GroupLevel.Guest } });
+      logger.debug(`Bind guest id: ${guest.id}`)
+
+      const group = await UserGroupModel.create({ user_id, group_id: guest.id });
+      logger.debug(`Bind group id: ${group.id}`)
+
+      await transaction.commit();
+
+    } catch (error) {
+      if (transaction) await transaction.rollback();
+    }
+    return true;
+  }
+
+  async getWechatTokens(userId, openId) {
+    const user = await UserIdentityModel.wechatVerify(userId, openId);
+    logger.debug(`verified user id: ${user.id}`)
+    const { accessToken, refreshToken } = getTokens({
+      id: user.user_id
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+      uid: user.user_id
+    };
+  }
+
+  async getWechatUser(v) {
+    const userId = v.get('path.id')
+    logger.debug(`user_id: ${userId}`)
+    return await UserModel.findOne({ where: { id: userId } })
+  }
+
+
+  formatPermissions(permissions) {
     const map = {};
     permissions.forEach(v => {
       const module = v.module;

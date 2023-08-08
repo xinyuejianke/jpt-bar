@@ -85,6 +85,7 @@ module.exports = {
     20404: 'member不存在',
     30001: '新建membership成功',
     30002: '删除membership成功',
-    30404: 'membership不存在'
+    30404: 'membership不存在',
+    40401: 'Fail to obtain openid',
   }
 };

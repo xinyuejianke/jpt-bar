@@ -5,7 +5,8 @@ import {
   generate,
   Failed,
   config,
-  InfoCrudMixin
+  InfoCrudMixin,
+  logger
 } from 'lin-mizar';
 import sequelize from '../lib/db';
 import { IdentityType } from '../lib/type';
@@ -13,14 +14,14 @@ import { Model, Sequelize } from 'sequelize';
 import { get, has, unset, merge } from 'lodash';
 
 class UserIdentity extends Model {
-  checkPassword (raw) {
+  checkPassword(raw) {
     if (!this.credential || this.credential === '') {
       return false;
     }
     return verify(raw, this.credential);
   }
 
-  static async verify (username, password) {
+  static async verify(username, password) {
     const user = await this.findOne({
       where: {
         identity_type: IdentityType.Password,
@@ -36,7 +37,28 @@ class UserIdentity extends Model {
     return user;
   }
 
-  static async changePassword (currentUser, oldPassword, newPassword) {
+  static async wechatVerify(userId, openId) {
+    const user = await this.findOne({
+      where: {
+        identity_type: IdentityType.Wechat,
+        identifier: openId
+      }
+    })
+    logger.debug(`Get token from user: ${user.user_id}`)
+    if (!user) {
+      throw new NotFound({ message: 'no user founded based on openId' });
+    }
+    if (!user.checkPassword(openId)) {
+      throw new AuthFailed({ message: 'not correct password' });
+    }
+    if (user.user_id != userId) {
+      logger.debug(`${user.user_id} != ${userId}`)
+      throw new AuthFailed({ message: 'provided user_id does not match target user_id' });
+    }
+    return user
+  }
+
+  static async changePassword(currentUser, oldPassword, newPassword) {
     const user = await this.findOne({
       where: {
         identity_type: IdentityType.Password,
@@ -55,7 +77,7 @@ class UserIdentity extends Model {
     await user.save();
   }
 
-  static async resetPassword (currentUser, newPassword) {
+  static async resetPassword(currentUser, newPassword) {
     const user = await this.findOne({
       where: {
         identity_type: IdentityType.Password,
@@ -107,15 +129,15 @@ UserIdentity.init(
 );
 
 class User extends Model {
-  toJSON () {
+  toJSON() {
     const origin = {
       id: this.id,
       username: this.username,
       nickname: this.nickname,
+      mobile: this.mobile,
       email: this.email,
       avatar: this.avatar
-        ? `${config.getItem('siteDomain', 'http://localhost')}/assets/${
-          this.avatar
+        ? `${config.getItem('siteDomain', 'http://localhost')}/assets/${this.avatar
         }`
         : ''
     };
@@ -141,7 +163,7 @@ User.init(
       autoIncrement: true
     },
     username: {
-      type: Sequelize.STRING({ length: 24 }),
+      type: Sequelize.STRING({ length: 100 }),
       allowNull: false,
       comment: '用户名，唯一'
     },
@@ -158,6 +180,10 @@ User.init(
       // }
     },
     email: {
+      type: Sequelize.STRING({ length: 100 }),
+      allowNull: true
+    },
+    mobile: {
       type: Sequelize.STRING({ length: 100 }),
       allowNull: true
     }

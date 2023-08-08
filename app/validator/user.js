@@ -3,7 +3,7 @@ import { isOptional } from '../lib/util';
 import validator from 'validator';
 
 class RegisterValidator extends LinValidator {
-  constructor () {
+  constructor() {
     super();
     this.username = [
       new Rule('isNotEmpty', '用户名不可为空'),
@@ -23,7 +23,7 @@ class RegisterValidator extends LinValidator {
     this.confirm_password = new Rule('isNotEmpty', '确认密码不可为空');
   }
 
-  validateConfirmPassword (data) {
+  validateConfirmPassword(data) {
     if (!data.body.password || !data.body.confirm_password) {
       return [false, '两次输入的密码不一致，请重新输入'];
     }
@@ -35,7 +35,7 @@ class RegisterValidator extends LinValidator {
     }
   }
 
-  validateGroupIds (data) {
+  validateGroupIds(data) {
     const ids = data.body.group_ids;
     if (isOptional(ids)) {
       return true;
@@ -56,7 +56,7 @@ class RegisterValidator extends LinValidator {
 }
 
 class LoginValidator extends LinValidator {
-  constructor () {
+  constructor() {
     super();
     this.username = new Rule('isNotEmpty', '用户名不可为空');
     this.password = new Rule('isNotEmpty', '密码不可为空');
@@ -71,7 +71,7 @@ class LoginValidator extends LinValidator {
  * 更新用户信息
  */
 class UpdateInfoValidator extends LinValidator {
-  constructor () {
+  constructor() {
     super();
     this.email = [
       new Rule('isOptional'),
@@ -96,7 +96,7 @@ class UpdateInfoValidator extends LinValidator {
 }
 
 class ChangePasswordValidator extends LinValidator {
-  constructor () {
+  constructor() {
     super();
     this.new_password = new Rule(
       'matches',
@@ -107,7 +107,7 @@ class ChangePasswordValidator extends LinValidator {
     this.old_password = new Rule('isNotEmpty', '请输入旧密码');
   }
 
-  validateConfirmPassword (data) {
+  validateConfirmPassword(data) {
     if (!data.body.new_password || !data.body.confirm_password) {
       return [false, '两次输入的密码不一致，请重新输入'];
     }
@@ -121,9 +121,18 @@ class ChangePasswordValidator extends LinValidator {
 }
 
 class AvatarUpdateValidator extends LinValidator {
-  constructor () {
+  constructor() {
     super();
     this.avatar = new Rule('isNotEmpty', '必须传入头像的url链接');
+  }
+}
+
+class TokenValidator extends LinValidator {
+  constructor() {
+    super()
+    this.account = [
+      new Rule('isLength', ' length should between 4 to 32', { min: 4, max: 32 })
+    ]
   }
 }
 
@@ -132,5 +141,6 @@ export {
   UpdateInfoValidator,
   LoginValidator,
   RegisterValidator,
-  AvatarUpdateValidator
+  AvatarUpdateValidator,
+  TokenValidator
 };
