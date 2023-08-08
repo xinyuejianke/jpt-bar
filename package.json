@@ -45,7 +45,8 @@
     "nodemon": "^1.18.10",
     "prettier": "1.16.4",
     "supertest": "^3.4.2",
-    "axios": "^0.27.2"
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.3"
   },
   "dependencies": {
     "@koa/cors": "^2.2.3",

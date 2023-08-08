@@ -1,8 +1,8 @@
-import { LinRouter, getTokens, config } from 'lin-mizar';
+import { LinRouter } from 'lin-mizar';
 import { TokenValidator } from '../../validator/user';
 import { PositiveIdValidator } from '../../validator/common'
 import { UserDao } from '../../dao/user';
-import { loginRequired, groupRequired, refreshTokenRequiredWithUnifyException } from '../../middleware/jwt';
+import { groupRequired } from '../../middleware/jwt';
 
 const userApi = new LinRouter({
   prefix: '/v1/wechat',
@@ -20,7 +20,7 @@ userApi.linGet(
   'getInformation',
   '/user/:id',
   userApi.permission('查询自己信息'),
-  loginRequired,
+  groupRequired,
   async ctx => {
     const v = await new PositiveIdValidator().validate(ctx)
     const info = await userDao.getWechatUser(v)

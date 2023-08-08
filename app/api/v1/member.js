@@ -16,9 +16,7 @@ const memberDto = new MemberDao();
 //Register a new member
 memberApi.post('/', async (ctx) => {
   const v = await new MemberValidator().validate(ctx)
-  await memberDto.createMember(v)
-
-  ctx.success({ code: 20001 })
+  ctx.json(await memberDto.createMember(v))
 })
 
 memberApi.linDelete(
@@ -34,13 +32,27 @@ memberApi.linDelete(
   }
 )
 
-memberApi.get('/:id', async (ctx) => {
-  await new PositiveIdValidator().validate(ctx)
-  const id = getSafeParamId(ctx);
-  const member = await memberDto.getMember(id)
+memberApi.linGet(
+  'getMember',
+  '/:id',
+  memberApi.permission('查看member信息'),
+  async (ctx) => {
+    await new PositiveIdValidator().validate(ctx)
+    const id = getSafeParamId(ctx);
+    const member = await memberDto.getMember(id)
+    ctx.json(member)
+  }
+)
 
-  ctx.json(member)
-})
+memberApi.linGet(
+  'getAllMembers',
+  '/list/all',
+  memberApi.permission('访问当前用户所有的members'),
+  groupRequired,
+  async (ctx) => {
+    ctx.json(await memberDto.getMembers())
+  }
+)
 
 memberApi.linGet(
   'getAllMembers',

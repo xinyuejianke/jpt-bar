@@ -13,16 +13,22 @@ const membershipApi = new LinRouter({
 
 const membershipDto = new MembershipDao()
 
-membershipApi.post('/', async ctx => {
-  const v = await new MembershipValidator().validate(ctx)
-  await membershipDto.createMembership(v)
-  ctx.success({ code: 30001 })
-})
+membershipApi.linPost(
+  'buildMembership',
+  '/',
+  membershipApi.permission('绑定成员'),
+  groupRequired,
+  async ctx => {
+    const v = await new MembershipValidator().validate(ctx)
+    await membershipDto.createMembership(v)
+    ctx.success({ code: 30001 })
+  }
+)
 
 membershipApi.linDelete(
   'deleteMembership',
   '/:id',
-  membershipApi.permission('删除membership'),
+  membershipApi.permission('解绑成员'),
   groupRequired,
   async ctx => {
     const v = await new PositiveIdValidator().validate(ctx);
@@ -32,12 +38,18 @@ membershipApi.linDelete(
   }
 )
 
-membershipApi.get('/:id', async ctx => {
-  await new PositiveIdValidator().validate(ctx)
-  const userId = getSafeParamId(ctx);
-  const members = await membershipDto.getAllMembers(userId)
+membershipApi.linGet(
+  'getMembershipByUser',
+  '/:id',
+  membershipApi.permission('访问用户绑定的membership'),
+  groupRequired,
+  async ctx => {
+    await new PositiveIdValidator().validate(ctx)
+    const userId = getSafeParamId(ctx);
+    const members = await membershipDto.getAllMembers(userId)
 
-  ctx.json(members)
-})
+    ctx.json(members)
+  }
+)
 
 module.exports = { membershipApi, [disableLoading]: false };

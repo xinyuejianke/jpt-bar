@@ -22,7 +22,7 @@ class MemberDao {
     member.gender = v.get('body.gender');
     member.birthday = v.get('body.birthday')
 
-    await member.save();
+    return await member.save();
   }
 
   async updateMember(v, id) {
