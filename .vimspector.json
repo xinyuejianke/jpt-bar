@@ -1,0 +1,56 @@
+{
+  "configurations": {
+    "Node.js debugger": {
+      "adapter": "vscode-node",
+      "breakpoints": {
+        "exception": {
+          "all": "N",
+          "uncaught": "N"
+        }
+      },
+      "configuration": {
+        "protocol": "auto",
+        "stopOnEntry": false,
+        "cwd": "${workspaceRoot}",
+        "type": "pwa-node",
+        "name": "launch program",
+        "request": "launch",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "program": "${workspaceRoot}/index.js"
+      }
+    },
+    "Jest debugger": {
+      "adapter": "vscode-node",
+      "breakpoints": {
+        "exception": {
+          "all": "N",
+          "uncaught": "N"
+        }
+      },
+      "configuration": {
+        "request": "launch",
+        "name": "Jest debugger",
+        "type": "node",
+        "console": "integratedTerminal",
+        "program": "${workspaceRoot}/node_modules/jest-cli/bin/jest.js",
+        "args": [
+          "--runInBand",
+          "--forceExit"
+        ],
+        "env": {
+          "NODE_ENV": "test"
+        },
+        "runtimeArgs": [
+          "--nolazy"
+        ],
+        "skipFiles": [
+          "*/<node_internals>/**/*.js",
+          "node_modules/**/*.js"
+        ],
+        "cwd": "${workspaceRoot}"
+      }
+    }
+  }
+}
