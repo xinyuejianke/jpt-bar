@@ -26,7 +26,7 @@ userApi.linGet(
     const v = await new PositiveIdValidator().validate(ctx)
     const userId = v.get('path.id')
     logger.debug(`user_id: ${userId}`)
-    const info = await userDao.getUser(userId)
+    const info = await userDao.getWechatUser(userId)
     ctx.json(info);
   }
 )

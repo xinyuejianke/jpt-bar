@@ -305,17 +305,32 @@ class UserDao {
           credential: generate(openId)
         },
         { transaction }
-      );
+      )
 
-      // 认加入游客分组
-      const guest = await GroupModel.findOne({ where: { level: GroupLevel.Guest } });
+      // 加入顾客分组
+      let guest = await GroupModel.findOne({
+        where: {
+          name: '顾客',
+          info: '净瓶堂小程序端顾客',
+          level: GroupLevel.Guest
+        },
+      })
+      if (!guest) { //如果首次创建，需要设置权限，看看是否可以自动化，或者不需要这个步骤。
+        logger.debug('Create new 顾客 group')
+        guest = await GroupModel.create({
+          name: '顾客',
+          info: '净瓶堂小程序端顾客',
+          level: GroupLevel.Guest
+        },
+          { transaction }
+        )
+      }
       logger.debug(`Bind guest id: ${guest.id}`)
 
-      const group = await UserGroupModel.create({ user_id, group_id: guest.id });
+      const group = await UserGroupModel.create({ user_id, group_id: guest.id }, { transaction });
       logger.debug(`Bind group id: ${group.id}`)
 
       await transaction.commit();
-
     } catch (error) {
       if (transaction) await transaction.rollback();
     }
@@ -336,24 +351,24 @@ class UserDao {
     };
   }
 
-  async getUser(id) {
-    const user = await UserModel.findOne({ where: { id } })
-    if (!user) {
-      throw new NotFound({ code: 10021 })
-    }
-    return user
+  async getWechatUser(id) {
+    return await this.getUser(id, '顾客')
   }
 
   //Employee is a user in employee group
   async getEmployee(id) {
+    return await this.getUser(id, '工作人员')
+  }
+
+  async getUser(id, groupname) {
     const user = (await sequelize.query("SELECT u.* \n" +
       "FROM lin_user u \n" +
       "LEFT JOIN lin_user_group ug ON u.id = ug.user_id \n" +
       "LEFT JOIN lin_group g ON ug.group_id = g.id \n" +
-      `WHERE g.name = '工作人员' AND u.id = ${id}`,
+      `WHERE g.name = '${groupname}' AND u.id = ${id}`,
       { model: UserModel, mapToModel: true }))[0]
     if (!user) {
-      throw new NotFound({ message: `无法在工作人员组中找到用户 id: ${id}` })
+      throw new NotFound({ message: `无法在[${groupname}组]中找到用户 id: ${id}` })
     }
     return user
   }
