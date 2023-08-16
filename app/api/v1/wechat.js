@@ -3,6 +3,7 @@ import { TokenValidator } from '../../validator/user';
 import { PositiveIdValidator } from '../../validator/common'
 import { UserDao } from '../../dao/user';
 import { groupRequired } from '../../middleware/jwt';
+import { logger } from 'lin-mizar';
 
 const userApi = new LinRouter({
   prefix: '/v1/wechat',
@@ -23,7 +24,9 @@ userApi.linGet(
   groupRequired,
   async ctx => {
     const v = await new PositiveIdValidator().validate(ctx)
-    const info = await userDao.getWechatUser(v)
+    const userId = v.get('path.id')
+    logger.debug(`user_id: ${userId}`)
+    const info = await userDao.getUser(userId)
     ctx.json(info);
   }
 )

@@ -7,7 +7,7 @@ class MemberDao {
   async getMember(id) {
     const member = await MemberModel.findOne({ where: { id } })
     if (!member) {
-      throw new NotFound({ code: 10022 });
+      throw new NotFound({ code: 20404 });
     }
     return member
   }
@@ -40,7 +40,7 @@ class MemberDao {
   async deleteMember(id) {
     const member = await MemberModel.findOne({ where: { id } });
     if (!member) {
-      throw new NotFound({ code: 10022 });
+      throw new NotFound({ code: 20404 });
     }
     member.destroy();
   }

@@ -92,7 +92,8 @@ class UserDao {
     if (v.get('body.username') && user.username !== v.get('body.username')) {
       const exit = await UserModel.findOne({
         where: {
-          username: v.get('body.username')
+          username: v.get('body.username'),
+          nickname: v.get('body.nickname')
         }
       });
       if (exit) {
@@ -204,7 +205,8 @@ class UserDao {
     try {
       transaction = await sequelize.transaction();
       const user = {
-        username: v.get('body.username')
+        username: v.get('body.username'),
+        nickname: v.get('body.nickname')
       };
       if (v.get('body.email') && v.get('body.email').trim() !== '') {
         user.email = v.get('body.email');
@@ -334,12 +336,27 @@ class UserDao {
     };
   }
 
-  async getWechatUser(v) {
-    const userId = v.get('path.id')
-    logger.debug(`user_id: ${userId}`)
-    return await UserModel.findOne({ where: { id: userId } })
+  async getUser(id) {
+    const user = await UserModel.findOne({ where: { id } })
+    if (!user) {
+      throw new NotFound({ code: 10021 })
+    }
+    return user
   }
 
+  //Employee is a user in employee group
+  async getEmployee(id) {
+    const user = (await sequelize.query("SELECT u.* \n" +
+      "FROM lin_user u \n" +
+      "LEFT JOIN lin_user_group ug ON u.id = ug.user_id \n" +
+      "LEFT JOIN lin_group g ON ug.group_id = g.id \n" +
+      `WHERE g.name = '工作人员' AND u.id = ${id}`,
+      { model: UserModel, mapToModel: true }))[0]
+    if (!user) {
+      throw new NotFound({ message: `无法在工作人员组中找到用户 id: ${id}` })
+    }
+    return user
+  }
 
   formatPermissions(permissions) {
     const map = {};

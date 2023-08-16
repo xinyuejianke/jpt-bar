@@ -14,10 +14,15 @@ const memberApi = new LinRouter({
 const memberDto = new MemberDao();
 
 //Register a new member
-memberApi.post('/', async (ctx) => {
-  const v = await new MemberValidator().validate(ctx)
-  ctx.json(await memberDto.createMember(v))
-})
+memberApi.linPost(
+  'createMember',
+  '/',
+  memberApi.permission('新增member'),
+  groupRequired,
+  async (ctx) => {
+    const v = await new MemberValidator().validate(ctx)
+    ctx.json(await memberDto.createMember(v))
+  })
 
 memberApi.linDelete(
   'deleteMember',
@@ -25,8 +30,8 @@ memberApi.linDelete(
   memberApi.permission('删除member'),
   groupRequired,
   async ctx => {
-    const v = await new PositiveIdValidator().validate(ctx);
-    const id = v.get('path.id');
+    await new PositiveIdValidator().validate(ctx);
+    const id = getSafeParamId(ctx);
     await memberDto.deleteMember(id)
     ctx.success({ code: 20002 });
   }
