@@ -307,24 +307,13 @@ class UserDao {
         { transaction }
       )
 
-      // 加入顾客分组
+      // 加入顾客分组，如没有需手动创建
       let guest = await GroupModel.findOne({
         where: {
           name: '顾客',
-          info: '净瓶堂小程序端顾客',
           level: GroupLevel.Guest
-        },
+        }
       })
-      if (!guest) { //如果首次创建，需要设置权限，看看是否可以自动化，或者不需要这个步骤。
-        logger.debug('Create new 顾客 group')
-        guest = await GroupModel.create({
-          name: '顾客',
-          info: '净瓶堂小程序端顾客',
-          level: GroupLevel.Guest
-        },
-          { transaction }
-        )
-      }
       logger.debug(`Bind guest id: ${guest.id}`)
 
       const group = await UserGroupModel.create({ user_id, group_id: guest.id }, { transaction });
