@@ -7,8 +7,8 @@ import { AppointmentDao } from '../../dao/appointment';
 
 
 const appointmentApi = new LinRouter({
-  prefix: '/v1/appointment',
-  module: 'appointment'
+  prefix: '/v1/appointments',
+  module: 'appointments'
 })
 
 const appointmentDto = new AppointmentDao()
@@ -26,13 +26,13 @@ appointmentApi.linPost(
 
 appointmentApi.linGet(
   'getAppointment',
-  ':id',
+  '/:id',
   appointmentApi.permission('查看预约信息'),
   groupRequired,
   async ctx => {
     await new PositiveIdValidator().validate(ctx)
-    const id = getSafeParamId(ctx)
-    const appointment = await appointmentDto.getAppointment(id)
+    const appointmentId = getSafeParamId(ctx)
+    const appointment = await appointmentDto.getAppointment(appointmentId)
     ctx.json(appointment)
   }
 )
@@ -44,8 +44,8 @@ appointmentApi.linGet(
   groupRequired,
   async ctx => {
     await new PositiveIdValidator().validate(ctx)
-    const id = getSafeParamId(ctx)
-    const historicalAppointments = await appointmentDto.getHistoricalAppointments(id)
+    const userId = getSafeParamId(ctx)
+    const historicalAppointments = await appointmentDto.getHistoricalAppointments(userId)
     ctx.json(historicalAppointments)
   }
 )
@@ -57,8 +57,8 @@ appointmentApi.linGet(
   groupRequired,
   async ctx => {
     await new PositiveIdValidator().validate(ctx)
-    const id = getSafeParamId(ctx)
-    const processingAppointments = await appointmentDto.getProcessingAppointments(id)
+    const userId = getSafeParamId(ctx)
+    const processingAppointments = await appointmentDto.getProcessingAppointments(userId)
     ctx.json(processingAppointments)
   }
 )

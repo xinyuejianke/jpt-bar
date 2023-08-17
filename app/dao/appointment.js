@@ -41,12 +41,14 @@ class AppointmentDao {
     return appointments
   }
 
-  async getProcessingAppointments(memberId) {
-    await memberDao.getMember(memberId)
+  async getProcessingAppointments(userId) {
+    await userDao.getWechatUser(userId)
+    const members = await membershipDao.getAllMembers(userId)
+    const memberIds = members.map(m => m.id)
     const appointments = await AppointmentModel.findAll({
       where: {
-        memberId,
-        dateTime: { [Op.gt]: new Date() }
+        memberId: { [Op.in]: memberIds },
+        dateTime: { [Op.gte]: new Date() }
       },
     })
     return appointments
