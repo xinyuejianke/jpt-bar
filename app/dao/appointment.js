@@ -2,10 +2,12 @@ import { logger, NotFound } from 'lin-mizar';
 import { AppointmentModel } from '../model/appointment'
 import { UserDao } from '../dao/user'
 import { MemberDao } from '../dao/member'
+import { MembershipDao } from '../dao/membership'
 import { Op } from 'sequelize';
 
 const memberDao = new MemberDao()
 const userDao = new UserDao()
+const membershipDao = new MembershipDao()
 
 class AppointmentDao {
   async createAppointment(v) {
@@ -24,13 +26,15 @@ class AppointmentDao {
     return await AppointmentModel.findOne({ where: { id } })
   }
 
-  async getHistoricalAppointments(memberId) {
-    await memberDao.getMember(memberId)
+  async getHistoricalAppointments(userId) {
+    await userDao.getWechatUser(userId)
+    const members = await membershipDao.getAllMembers(userId)
+    const memberIds = members.map(m => m.id)
     const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0)
     logger.debug(`start of today date: ${startOfToday.toDateString()} at time: ${startOfToday.toTimeString()}`)
     const appointments = await AppointmentModel.findAll({
       where: {
-        memberId,
+        memberId: { [Op.in]: memberIds },
         dateTime: { [Op.lt]: startOfToday }
       },
     })

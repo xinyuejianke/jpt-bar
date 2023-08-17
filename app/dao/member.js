@@ -12,10 +12,6 @@ class MemberDao {
     return member
   }
 
-  async getMembers() {
-    return await MemberModel.findAll();
-  }
-
   async createMember(v) {
     const member = new MemberModel();
     member.nickname = v.get('body.nickname');
