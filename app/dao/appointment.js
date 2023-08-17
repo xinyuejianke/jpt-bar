@@ -27,10 +27,22 @@ class AppointmentDao {
   async getHistoricalAppointments(memberId) {
     await memberDao.getMember(memberId)
     const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0)
-    const appointments = AppointmentModel.findAll({
+    logger.debug(`start of today date: ${startOfToday.toDateString()} at time: ${startOfToday.toTimeString()}`)
+    const appointments = await AppointmentModel.findAll({
       where: {
         memberId,
         dateTime: { [Op.lt]: startOfToday }
+      },
+    })
+    return appointments
+  }
+
+  async getProcessingAppointments(memberId) {
+    await memberDao.getMember(memberId)
+    const appointments = await AppointmentModel.findAll({
+      where: {
+        memberId,
+        dateTime: { [Op.gt]: new Date() }
       },
     })
     return appointments

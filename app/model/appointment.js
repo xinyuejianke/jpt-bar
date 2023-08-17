@@ -4,12 +4,17 @@ import { merge } from 'lodash';
 import { InfoCrudMixin } from 'lin-mizar';
 
 class AppointmentModel extends Model {
+
+  getDateTimeByChinaTimezone(dateTime) {
+    return new Date(dateTime.setMinutes(dateTime.getMinutes() - dateTime.getTimezoneOffset()))
+  }
+
   toJSON() {
     const origin = {
       id: this.id,
       employeeId: this.employeeId,
       memberId: this.memberId,
-      dateTime: this.dateTime,
+      dateTime: this.getDateTimeByChinaTimezone(this.dateTime),
       comment: this.comment,
       advice: this.advice
     };
@@ -33,8 +38,8 @@ AppointmentModel.init(
   merge(
     {
       sequelize,
-      tableName: 'appointment',
-      modelName: 'appointment',
+      tableName: 'appointments',
+      modelName: 'appointments',
       collate: 'utf8mb4_general_ci'
     },
     InfoCrudMixin.options

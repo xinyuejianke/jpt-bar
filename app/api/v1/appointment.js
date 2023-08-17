@@ -50,4 +50,17 @@ appointmentApi.linGet(
   }
 )
 
+appointmentApi.linGet(
+  'getProcessingAppointment',
+  '/processing/:id',
+  appointmentApi.permission('查看进行中预约'),
+  groupRequired,
+  async ctx => {
+    await new PositiveIdValidator().validate(ctx)
+    const id = getSafeParamId(ctx)
+    const processingAppointments = await appointmentDto.getProcessingAppointments(id)
+    ctx.json(processingAppointments)
+  }
+)
+
 module.exports = { appointmentApi, [disableLoading]: false };
