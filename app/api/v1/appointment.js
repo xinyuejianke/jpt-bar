@@ -37,4 +37,17 @@ appointmentApi.linGet(
   }
 )
 
+appointmentApi.linGet(
+  'getHistoricalAppointment',
+  '/history/:id',
+  appointmentApi.permission('查看预约历史'),
+  groupRequired,
+  async ctx => {
+    await new PositiveIdValidator().validate(ctx)
+    const id = getSafeParamId(ctx)
+    const historicalAppointments = await appointmentDto.getHistoricalAppointments(id)
+    ctx.json(historicalAppointments)
+  }
+)
+
 module.exports = { appointmentApi, [disableLoading]: false };
