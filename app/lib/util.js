@@ -1,7 +1,7 @@
 import { toSafeInteger, get, isInteger } from 'lodash';
 import { ParametersException } from 'lin-mizar';
 
-function getSafeParamId (ctx) {
+function getSafeParamId(ctx) {
   const id = toSafeInteger(get(ctx.params, 'id'));
   if (!isInteger(id)) {
     throw new ParametersException({
@@ -11,7 +11,7 @@ function getSafeParamId (ctx) {
   return id;
 }
 
-function isOptional (val) {
+function isOptional(val) {
   // undefined , null , ""  , "    ", 皆通过
   if (val === undefined) {
     return true;

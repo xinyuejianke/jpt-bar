@@ -3,11 +3,13 @@ import { AppointmentModel } from '../model/appointment'
 import { UserDao } from '../dao/user'
 import { MemberDao } from '../dao/member'
 import { MembershipDao } from '../dao/membership'
+import { ScheduleDao } from '../dao/schedule'
 import { Op } from 'sequelize';
 
 const memberDao = new MemberDao()
 const userDao = new UserDao()
 const membershipDao = new MembershipDao()
+const scheduleDao = new ScheduleDao()
 
 class AppointmentDao {
   async createAppointment(v) {
@@ -19,6 +21,9 @@ class AppointmentDao {
 
     await memberDao.getMember(appointment.memberId)
     await userDao.getEmployee(appointment.employeeId)
+    //check appointment availability for target employee, then update schedule
+    await scheduleDao.updateSchedule(appointment.employeeId, appointment.dateTime)
+
     return await appointment.save()
   }
 
