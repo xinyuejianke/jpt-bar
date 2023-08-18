@@ -37,7 +37,7 @@ class ScheduleDao {
     return await ScheduleModel.findAll({ where: { date } })
   }
 
-  async removeAvailableTime(userId, dateTime) {
+  async removeAvailableTime(userId, dateTime, transaction) {
     if (!dateTime instanceof Date) {
       throw new ParametersException({ message: `${dateTime} 必须是 Date 类型` })
     }
@@ -59,10 +59,10 @@ class ScheduleDao {
     }
     availableTimes.splice(isAvailable, 1) //rm target time in schedule.availableTimes
     schedule.availableTimes = availableTimes.toString()
-    return await schedule.save()
+    return await schedule.save({ transaction })
   }
 
-  async addAvailableTime(userId, dateTime) {
+  async addAvailableTime(userId, dateTime, transaction) {
     if (!dateTime instanceof Date) {
       throw new ParametersException({ message: `${dateTime} 必须是 Date 类型` })
     }
@@ -82,7 +82,7 @@ class ScheduleDao {
     }
     availableTimes.push(time)
     schedule.availableTimes = availableTimes.sort().toString()
-    return await schedule.save()
+    return await schedule.save({ transaction })
   }
 }
 
