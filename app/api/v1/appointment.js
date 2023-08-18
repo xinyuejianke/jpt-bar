@@ -63,4 +63,15 @@ appointmentApi.linGet(
   }
 )
 
+appointmentApi.linDelete(
+  'deleteUnexpiredAppointment',
+  '/',
+  appointmentApi.permission('删除未过期预约'),
+  groupRequired,
+  async ctx => {
+    const v = await new AppointmentValidator().validate(ctx)
+    ctx.json(await appointmentDto.deleteUnexpiredAppointment(v))
+  }
+)
+
 module.exports = { appointmentApi, [disableLoading]: false };

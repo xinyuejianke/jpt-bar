@@ -37,7 +37,7 @@ class ScheduleDao {
     return await ScheduleModel.findAll({ where: { date } })
   }
 
-  async updateSchedule(userId, dateTime) {
+  async removeAvailableTime(userId, dateTime) {
     if (!dateTime instanceof Date) {
       throw new ParametersException({ message: `${dateTime} 必须是 Date 类型` })
     }

@@ -22,7 +22,7 @@ class AppointmentDao {
     await memberDao.getMember(appointment.memberId)
     await userDao.getEmployee(appointment.employeeId)
     //check appointment availability for target employee, then update schedule
-    await scheduleDao.updateSchedule(appointment.employeeId, appointment.dateTime)
+    await scheduleDao.removeAvailableTime(appointment.employeeId, appointment.dateTime)
 
     return await appointment.save()
   }
@@ -57,6 +57,18 @@ class AppointmentDao {
       },
     })
     return appointments
+  }
+
+  async deleteUnexpiredAppointment(v) {
+    const memberId = v.get('body.member_id')
+    const employeeId = v.get('body.employee_id')
+    const dateTime = v.get('body.date_time')
+    const appointment = await AppointmentModel.findOne({ where: { memberId, employeeId, dateTime } })
+    // await scheduleDao.addAvailableTime(employeeId, dateTime)
+    if (!appointment) {
+      throw new NotFound({ message: `未找到预约信息：用户id：${memberId}，工作人员id：${employeeId}，预约日期：${dateTime}` })
+    }
+    return await appointment.destroy()
   }
 }
 
