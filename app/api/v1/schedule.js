@@ -4,7 +4,7 @@ import { MemberDao } from '../../dao/member';
 import { PositiveIdValidator } from '../../validator/common';
 import { getSafeParamId } from '../../lib/util';
 import { groupRequired } from '../../middleware/jwt';
-import { ScheduleValidator } from '../../validator/schedule';
+import { ScheduleValidator, SchedulePathValidator } from '../../validator/schedule';
 import { ScheduleDao } from '../../dao/schedule';
 
 
@@ -15,15 +15,25 @@ const scheduleApi = new LinRouter({
 
 const scheduleDto = new ScheduleDao();
 
-//Register a new member
 scheduleApi.linPost(
   'createSchedule',
   '/',
   scheduleApi.permission('新增排班表'),
   groupRequired,
-  async (ctx) => {
+  async ctx => {
     const v = await new ScheduleValidator().validate(ctx)
     ctx.json(await scheduleDto.createSchedule(v))
+  }
+)
+
+scheduleApi.linGet(
+  'getScheduleOnDate',
+  '/:user_id/:date',
+  scheduleApi.permission('检索排班表'),
+  groupRequired,
+  async ctx => {
+    const v = await new SchedulePathValidator().validate(ctx)
+    ctx.json(await scheduleDto.getScheduleOnDate(v))
   }
 )
 
