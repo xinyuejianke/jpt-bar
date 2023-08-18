@@ -1,4 +1,4 @@
-import { RepeatException, ParametersException, NotFound, Forbidden } from 'lin-mizar';
+import { RepeatException, ParametersException, NotFound, Forbidden, logger } from 'lin-mizar';
 import { UserDao } from '../dao/user'
 import { ScheduleModel } from '../model/schedule'
 
@@ -59,6 +59,29 @@ class ScheduleDao {
     }
     availableTimes.splice(isAvailable, 1) //rm target time in schedule.availableTimes
     schedule.availableTimes = availableTimes.toString()
+    return await schedule.save()
+  }
+
+  async addAvailableTime(userId, dateTime) {
+    if (!dateTime instanceof Date) {
+      throw new ParametersException({ message: `${dateTime} 必须是 Date 类型` })
+    }
+    const dateTimeArr = dateTime.split(' ')
+    const date = dateTimeArr[0]
+    const time = dateTimeArr[1]
+
+    const schedule = await ScheduleModel.findOne({ where: { userId, date } })
+    if (!schedule) {
+      throw new NotFound({ message: `找不到工作人员id：${userId} 在 ${date} 的排班记录` })
+    }
+
+    const availableTimes = schedule.availableTimes.split(',')
+    const isAvailable = availableTimes.indexOf(time)
+    if (isAvailable !== -1) {
+      throw new NotFound({ message: `在availableTimes 已存在 ${time} 时间)` })
+    }
+    availableTimes.push(time)
+    schedule.availableTimes = availableTimes.sort().toString()
     return await schedule.save()
   }
 }
