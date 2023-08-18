@@ -25,20 +25,17 @@ class ScheduleDao {
     return await schedule.save()
   }
 
-  async getScheduleOnDate(v) {
+  async getEmployeeScheduleOnDate(v) {
     const userId = v.get('path.user_id')
     await userDto.getEmployee(userId)
 
     const date = v.get('path.date')
-    const schedule = await ScheduleModel.findOne({ where: { userId, date } })
-    if (!schedule) {
-      throw new NotFound({
-        message: `无法找到工作人员id：${userId} 在${date}的排班记录`
-      })
-    }
-    return schedule
+    return await ScheduleModel.findOne({ where: { userId, date } })
   }
 
+  async getAllSchedulesOnDate(date) {
+    return await ScheduleModel.findAll({ where: { date } })
+  }
 }
 
 export { ScheduleDao };

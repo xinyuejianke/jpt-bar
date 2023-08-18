@@ -4,7 +4,7 @@ import { MemberDao } from '../../dao/member';
 import { PositiveIdValidator } from '../../validator/common';
 import { getSafeParamId } from '../../lib/util';
 import { groupRequired } from '../../middleware/jwt';
-import { ScheduleValidator, SchedulePathValidator } from '../../validator/schedule';
+import { ScheduleValidator, SchedulePathValidator, DateValidator } from '../../validator/schedule';
 import { ScheduleDao } from '../../dao/schedule';
 
 
@@ -27,13 +27,24 @@ scheduleApi.linPost(
 )
 
 scheduleApi.linGet(
-  'getScheduleOnDate',
+  'getEmployeeScheduleOnDate',
   '/:user_id/:date',
   scheduleApi.permission('检索排班表'),
   groupRequired,
   async ctx => {
     const v = await new SchedulePathValidator().validate(ctx)
-    ctx.json(await scheduleDto.getScheduleOnDate(v))
+    ctx.json(await scheduleDto.getEmployeeScheduleOnDate(v))
+  }
+)
+
+scheduleApi.linGet(
+  'getAllSchedulesOnDate',
+  '/:date',
+  scheduleApi.permission('查看当日所有排班'),
+  groupRequired,
+  async ctx => {
+    const v = await new DateValidator().validate(ctx)
+    ctx.json(await scheduleDto.getAllSchedulesOnDate(v.get('path.date')))
   }
 )
 
