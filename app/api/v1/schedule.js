@@ -1,8 +1,4 @@
 import { LinRouter, disableLoading } from 'lin-mizar';
-import { MemberValidator } from '../../validator/member';
-import { MemberDao } from '../../dao/member';
-import { PositiveIdValidator } from '../../validator/common';
-import { getSafeParamId } from '../../lib/util';
 import { groupRequired } from '../../middleware/jwt';
 import { ScheduleValidator, SchedulePathValidator, DateValidator } from '../../validator/schedule';
 import { ScheduleDao } from '../../dao/schedule';

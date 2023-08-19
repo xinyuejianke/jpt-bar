@@ -1,4 +1,4 @@
-import { HttpException, logger, NotFound } from 'lin-mizar';
+import { logger, NotFound } from 'lin-mizar';
 import { AppointmentModel } from '../model/appointment'
 import { UserDao } from '../dao/user'
 import { MemberDao } from '../dao/member'
