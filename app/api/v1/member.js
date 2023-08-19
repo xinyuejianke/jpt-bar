@@ -3,7 +3,8 @@ import { MemberValidator } from '../../validator/member';
 import { MemberDao } from '../../dao/member';
 import { PositiveIdValidator } from '../../validator/common';
 import { getSafeParamId } from '../../lib/util';
-import { groupRequired } from '../../middleware/jwt';
+import { adminRequired, groupRequired } from '../../middleware/jwt';
+import { MemberModel } from '../../model/member';
 
 
 const memberApi = new LinRouter({
@@ -52,20 +53,10 @@ memberApi.linGet(
 memberApi.linGet(
   'getAllMembers',
   '/list/all',
-  memberApi.permission('访问当前用户所有的members'),
-  groupRequired,
-  async (ctx) => {
-    ctx.json(await memberDto.getMembers())
-  }
-)
-
-memberApi.linGet(
-  'getAllMembers',
-  '/list/all',
   memberApi.permission('访问所有members'),
-  groupRequired,
+  adminRequired,
   async (ctx) => {
-    ctx.json(await memberDto.getMembers())
+    ctx.json(await MemberModel.findAll())
   }
 )
 
