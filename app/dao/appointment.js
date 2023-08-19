@@ -1,4 +1,4 @@
-import { logger, NotFound } from 'lin-mizar';
+import { Failed, logger, NotFound } from 'lin-mizar';
 import { AppointmentModel } from '../model/appointment'
 import { UserDao } from '../dao/user'
 import { MemberDao } from '../dao/member'
@@ -91,7 +91,7 @@ class AppointmentDao {
     } catch (error) {
       if (transaction) {
         await transaction.rollback()
-        throw new NotFound(error)
+        throw new Failed(error)
       }
     }
   }

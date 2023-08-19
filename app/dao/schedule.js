@@ -1,4 +1,4 @@
-import { RepeatException, ParametersException, NotFound, Forbidden, logger } from 'lin-mizar';
+import { RepeatException, ParametersException, NotFound, Failed } from 'lin-mizar';
 import { UserDao } from '../dao/user'
 import { ScheduleModel } from '../model/schedule'
 
@@ -22,6 +22,24 @@ class ScheduleDao {
     schedule.date = date
     schedule.times = v.get('body.times')
     schedule.availableTimes = v.get('body.times')
+    return await schedule.save()
+  }
+
+  async updateEmployeeScheduleOnDate(v) {
+    const userId = v.get('body.user_id')
+    await userDto.getEmployee(userId)
+
+    const date = v.get('body.date')
+    const schedule = await ScheduleModel.findOne({ where: { userId, date } })
+    if (!schedule) {
+      throw new RepeatException({ message: `更新失败：工作人员id：${userId}没有在${date}排班` })
+    }
+    if (schedule.times !== schedule.availableTimes) {
+      throw new Failed({ message: `设定预约时间与可预约时间不一致，请检查工作人员 id：${userId}在${date}是否已经有预约` })
+    }
+    const times = v.get('body.times')
+    schedule.times = times
+    schedule.availableTimes = times
     return await schedule.save()
   }
 
@@ -78,7 +96,7 @@ class ScheduleDao {
     const availableTimes = schedule.availableTimes.split(',')
     const isAvailable = availableTimes.indexOf(time)
     if (isAvailable !== -1) {
-      throw new NotFound({ message: `在availableTimes 已存在 ${time} 时间)` })
+      throw new Failed({ message: `在availableTimes 已存在 ${time} 时间)` })
     }
     availableTimes.push(time)
     schedule.availableTimes = availableTimes.sort().toString()

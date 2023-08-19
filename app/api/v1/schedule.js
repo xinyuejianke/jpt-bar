@@ -33,6 +33,17 @@ scheduleApi.linGet(
   }
 )
 
+scheduleApi.linPut(
+  'updateEmployeeScheduleOnDate',
+  '/',
+  scheduleApi.permission('更新排班表'),
+  groupRequired,
+  async ctx => {
+    const v = await new ScheduleValidator().validate(ctx)
+    ctx.json(await scheduleDto.updateEmployeeScheduleOnDate(v))
+  }
+)
+
 scheduleApi.linGet(
   'getAllSchedulesOnDate',
   '/:date',
