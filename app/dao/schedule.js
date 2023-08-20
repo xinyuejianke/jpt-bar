@@ -1,6 +1,7 @@
 import { RepeatException, ParametersException, NotFound, Failed } from 'lin-mizar';
 import { UserDao } from '../dao/user'
 import { ScheduleModel } from '../model/schedule'
+import { UserModel } from '../model/user';
 
 const userDto = new UserDao()
 
@@ -52,7 +53,10 @@ class ScheduleDao {
   }
 
   async getAllSchedulesOnDate(date) {
-    return await ScheduleModel.findAll({ where: { date } })
+    return await ScheduleModel.findAll({
+      where: { date },
+      include: { model: UserModel }
+    })
   }
 
   async removeAvailableTime(userId, dateTime, transaction) {

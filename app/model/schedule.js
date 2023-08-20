@@ -2,12 +2,14 @@ import { Sequelize, Model } from 'sequelize'
 import sequelize from '../lib/db';
 import { merge } from 'lodash';
 import { InfoCrudMixin } from 'lin-mizar';
+import { UserModel } from './user';
 
 class ScheduleModel extends Model {
 
   toJSON() {
     const origin = {
-      userId: this.userId,
+      id: this.userId,
+      user: this.user,
       date: this.date,
       times: this.times,
       availableTimes: this.availableTimes
@@ -18,7 +20,6 @@ class ScheduleModel extends Model {
 
 ScheduleModel.init(
   {
-    userId: Sequelize.STRING,
     date: {
       type: Sequelize.DATEONLY,
       get function() {
@@ -33,10 +34,13 @@ ScheduleModel.init(
       sequelize,
       tableName: 'schedules',
       modelName: 'schedules',
-      collate: 'utf8mb4_general_ci'
     },
     InfoCrudMixin.options
   )
 )
+
+//Build many to one association between User and Schedule
+UserModel.hasMany(ScheduleModel, { onDelete: 'CASCADE' })
+ScheduleModel.belongsTo(UserModel)
 
 export { ScheduleModel };

@@ -193,6 +193,7 @@ User.init(
       sequelize,
       tableName: 'lin_user',
       modelName: 'user',
+      collate: 'utf8mb4_general_ci',
       indexes: [
         {
           name: 'username_del',
