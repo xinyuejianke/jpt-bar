@@ -55,4 +55,15 @@ scheduleApi.linGet(
   }
 )
 
+scheduleApi.linDelete(
+  'deleteSchedule',
+  '/:user_id/:date',
+  scheduleApi.permission('删除排班表'),
+  groupRequired,
+  async ctx => {
+    const v = await new SchedulePathValidator().validate(ctx)
+    ctx.json(await scheduleDto.deleteEmployeeScheduleOnDate(v))
+  }
+)
+
 module.exports = { scheduleApi, [disableLoading]: false };

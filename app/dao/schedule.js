@@ -33,7 +33,7 @@ class ScheduleDao {
     const date = v.get('body.date')
     const schedule = await ScheduleModel.findOne({ where: { userId, date } })
     if (!schedule) {
-      throw new RepeatException({ message: `更新失败：工作人员id：${userId}没有在${date}排班` })
+      throw new NotFound({ message: `更新失败：工作人员id：${userId}没有在${date}排班` })
     }
     if (schedule.times !== schedule.availableTimes) {
       throw new Failed({ message: `设定预约时间与可预约时间不一致，请检查工作人员 id：${userId}在${date}是否已经有预约` })
@@ -42,6 +42,21 @@ class ScheduleDao {
     schedule.times = times
     schedule.availableTimes = times
     return await schedule.save()
+  }
+
+  async deleteEmployeeScheduleOnDate(v) {
+    const userId = v.get('path.user_id')
+    await userDto.getEmployee(userId)
+
+    const date = v.get('path.date')
+    const schedule = await ScheduleModel.findOne({ where: { userId, date } })
+    if (!schedule) {
+      throw new Failed({ message: `删除失败：工作人员id：${userId}没有在${date}排班` })
+    }
+    if (schedule.times !== schedule.availableTimes) {
+      throw new Failed({ message: `设定预约时间与可预约时间不一致，请检查工作人员 id：${userId}在${date}是否已经有预约` })
+    }
+    return await schedule.destroy()
   }
 
   async getEmployeeScheduleOnDate(v) {
