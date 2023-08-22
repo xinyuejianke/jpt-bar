@@ -1,6 +1,6 @@
 import { LinRouter, disableLoading } from 'lin-mizar';
 import { groupRequired } from '../../middleware/jwt';
-import { ScheduleValidator, SchedulePathValidator, DateValidator } from '../../validator/schedule';
+import { ScheduleValidator, SchedulePathValidator, DateValidator, DaysValidator } from '../../validator/schedule';
 import { ScheduleDao } from '../../dao/schedule';
 
 
@@ -63,6 +63,17 @@ scheduleApi.linDelete(
   async ctx => {
     const v = await new SchedulePathValidator().validate(ctx)
     ctx.json(await scheduleDto.deleteEmployeeScheduleOnDate(v))
+  }
+)
+
+scheduleApi.linGet(
+  'getAllSchedulesNextNDays',
+  '/next/:days/days',
+  scheduleApi.permission('查看未来N天的所有排班'),
+  groupRequired,
+  async ctx => {
+    const v = await new DaysValidator().validate(ctx)
+    ctx.json(await scheduleDto.getAllSchedulesNextNDays(v.get('path.days')))
   }
 )
 

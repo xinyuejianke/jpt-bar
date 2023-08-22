@@ -1,4 +1,5 @@
-import { RepeatException, ParametersException, NotFound, Failed } from 'lin-mizar';
+import { RepeatException, ParametersException, NotFound, Failed, logger } from 'lin-mizar';
+import { Op } from 'sequelize';
 import { UserDao } from '../dao/user'
 import { ScheduleModel } from '../model/schedule'
 import { UserModel } from '../model/user';
@@ -29,6 +30,33 @@ class ScheduleDao {
 
   async getSchedule(id) {
     return await ScheduleModel.findOne({ where: { id }, include: UserModel })
+  }
+
+  getFormattedDate(date) {
+    if (!date instanceof Date) {
+      throw new ParametersException({ message: `${date} 必须是 Date 类型` })
+    }
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  async getAllSchedulesNextNDays(days) {
+    let dates = []
+    const today = new Date()
+    for (let i = 0; i < days; i++) {
+      let date = new Date()
+      date.setDate(today.getDate() + i)
+      const formattedDate = this.getFormattedDate(date)
+      dates.push(formattedDate)
+    }
+    logger.debug(`target dates: ${dates}`)
+    const schedules = await ScheduleModel.findAll({
+      where: { date: { [Op.in]: dates } },
+      include: UserModel
+    })
+    return schedules
   }
 
   async updateEmployeeScheduleOnDate(v) {
@@ -83,10 +111,7 @@ class ScheduleDao {
     if (!dateTime instanceof Date) {
       throw new ParametersException({ message: `${dateTime} 必须是 Date 类型` })
     }
-    const year = dateTime.getFullYear()
-    const month = String(dateTime.getMonth() + 1).padStart(2, '0')
-    const day = String(dateTime.getDate()).padStart(2, '0')
-    const date = `${year}-${month}-${day}`
+    const date = this.getFormattedDate(dateTime)
 
     const schedule = await ScheduleModel.findOne({ where: { userId, date } })
     if (!schedule) {

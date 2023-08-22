@@ -32,4 +32,11 @@ class DateValidator extends LinValidator {
   }
 }
 
-export { ScheduleValidator, SchedulePathValidator, DateValidator }
+class DaysValidator extends LinValidator {
+  constructor() {
+    super()
+    this.days = new Rule('isInt', 'user_id must be a positive integer', { min: 0 })
+  }
+}
+
+export { ScheduleValidator, SchedulePathValidator, DateValidator, DaysValidator }
