@@ -8,7 +8,6 @@ class ScheduleModel extends Model {
 
   toJSON() {
     const origin = {
-      id: this.userId,
       user: this.user,
       date: this.date,
       times: this.times,
@@ -20,6 +19,7 @@ class ScheduleModel extends Model {
 
 ScheduleModel.init(
   {
+    userId: Sequelize.INTEGER,
     date: {
       type: Sequelize.DATEONLY,
       get function() {

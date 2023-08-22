@@ -23,7 +23,12 @@ class ScheduleDao {
     schedule.date = date
     schedule.times = v.get('body.times')
     schedule.availableTimes = v.get('body.times')
-    return await schedule.save()
+    await schedule.save()
+    return this.getSchedule(schedule.id)
+  }
+
+  async getSchedule(id) {
+    return await ScheduleModel.findOne({ where: { id }, include: UserModel })
   }
 
   async updateEmployeeScheduleOnDate(v) {
@@ -31,7 +36,7 @@ class ScheduleDao {
     await userDto.getEmployee(userId)
 
     const date = v.get('body.date')
-    const schedule = await ScheduleModel.findOne({ where: { userId, date } })
+    const schedule = await ScheduleModel.findOne({ where: { userId, date }, include: UserModel })
     if (!schedule) {
       throw new NotFound({ message: `更新失败：工作人员id：${userId}没有在${date}排班` })
     }
@@ -49,7 +54,7 @@ class ScheduleDao {
     await userDto.getEmployee(userId)
 
     const date = v.get('path.date')
-    const schedule = await ScheduleModel.findOne({ where: { userId, date } })
+    const schedule = await ScheduleModel.findOne({ where: { userId, date }, include: UserModel })
     if (!schedule) {
       throw new Failed({ message: `删除失败：工作人员id：${userId}没有在${date}排班` })
     }
@@ -64,7 +69,7 @@ class ScheduleDao {
     await userDto.getEmployee(userId)
 
     const date = v.get('path.date')
-    return await ScheduleModel.findOne({ where: { userId, date } })
+    return await ScheduleModel.findOne({ where: { userId, date }, include: UserModel })
   }
 
   async getAllSchedulesOnDate(date) {
