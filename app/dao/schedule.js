@@ -22,7 +22,7 @@ class ScheduleDao {
     const schedule = new ScheduleModel()
     schedule.userId = userId
     schedule.date = date
-    schedule.times = v.get('body.times')
+    schedule.times = v.get('body.times').split(',').sort().toString()
     schedule.availableTimes = v.get('body.times')
     await schedule.save()
     return this.getSchedule(schedule.id)
