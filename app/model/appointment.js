@@ -2,6 +2,8 @@ import { Sequelize, Model } from 'sequelize'
 import sequelize from '../lib/db';
 import { merge } from 'lodash';
 import { InfoCrudMixin } from 'lin-mizar';
+import { UserModel } from './user';
+import { MemberModel } from './member';
 
 class AppointmentModel extends Model {
 
@@ -12,8 +14,8 @@ class AppointmentModel extends Model {
   toJSON() {
     const origin = {
       id: this.id,
-      employeeId: this.employeeId,
-      memberId: this.memberId,
+      member: this.member,
+      employee: this.user,
       dateTime: this.getDateTimeByChinaTimezone(this.dateTime),
       comment: this.comment,
       advice: this.advice
@@ -24,8 +26,8 @@ class AppointmentModel extends Model {
 
 AppointmentModel.init(
   {
+    userId: Sequelize.INTEGER,
     memberId: Sequelize.INTEGER,
-    employeeId: Sequelize.INTEGER,
     dateTime: {
       type: Sequelize.DATE,
       get function() {
@@ -39,11 +41,18 @@ AppointmentModel.init(
     {
       sequelize,
       tableName: 'appointments',
-      modelName: 'appointments',
-      collate: 'utf8mb4_general_ci'
+      modelName: 'appointments'
     },
     InfoCrudMixin.options
   )
 )
+
+//Build many to one association between User and Appointment
+UserModel.hasMany(AppointmentModel, { onDelete: 'CASCADE' })
+AppointmentModel.belongsTo(UserModel)
+
+//Build many to one association between Member and Appointment
+MemberModel.hasMany(AppointmentModel, { onDelete: 'CASCADE' })
+AppointmentModel.belongsTo(MemberModel)
 
 export { AppointmentModel };
