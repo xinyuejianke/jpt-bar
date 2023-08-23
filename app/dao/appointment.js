@@ -54,12 +54,12 @@ class AppointmentDao {
     await userDao.getWechatUser(userId)
     const members = await membershipDao.getAllMembers(userId)
     const memberIds = members.map(m => m.id)
-    const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0)
-    logger.debug(`start of today date: ${startOfToday.toDateString()} at time: ${startOfToday.toTimeString()}`)
+    const dateTimeNow = new Date();
+    logger.debug(`start of today date: ${dateTimeNow.toDateString()} at time: ${dateTimeNow.toTimeString()}`)
     const appointments = await AppointmentModel.findAll({
       where: {
         memberId: { [Op.in]: memberIds },
-        dateTime: { [Op.lt]: startOfToday }
+        dateTime: { [Op.lt]: dateTimeNow }
       },
       include: [{ model: UserModel }, { model: MemberModel }]
     })
