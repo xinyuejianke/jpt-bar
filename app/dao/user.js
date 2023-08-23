@@ -284,7 +284,7 @@ class UserDao {
       user = await this.createWechatUser(openId)
     }
     logger.debug(`user_id: ${user.id}`)
-    return await this.getWechatTokens(user.id, openId)
+    return await this.getWechatTokens(openId)
   }
 
   async createWechatUser(openId) {
@@ -293,7 +293,7 @@ class UserDao {
       transaction = await sequelize.transaction();
 
       const { id: user_id } = await UserModel.create(
-        { username: openId },
+        { username: openId, nickname: '微信用户' },
         { transaction }
       );
 
@@ -326,8 +326,8 @@ class UserDao {
     return true;
   }
 
-  async getWechatTokens(userId, openId) {
-    const user = await UserIdentityModel.wechatVerify(userId, openId);
+  async getWechatTokens(openId) {
+    const user = await UserIdentityModel.wechatVerify(openId);
     logger.debug(`verified user id: ${user.id}`)
     const { accessToken, refreshToken } = getTokens({
       id: user.user_id

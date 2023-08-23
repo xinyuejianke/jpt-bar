@@ -37,7 +37,7 @@ class UserIdentity extends Model {
     return user;
   }
 
-  static async wechatVerify(userId, openId) {
+  static async wechatVerify(openId) {
     const user = await this.findOne({
       where: {
         identity_type: IdentityType.Wechat,
@@ -50,10 +50,6 @@ class UserIdentity extends Model {
     }
     if (!user.checkPassword(openId)) {
       throw new AuthFailed({ message: 'not correct password' });
-    }
-    if (user.user_id != userId) {
-      logger.debug(`${user.user_id} != ${userId}`)
-      throw new AuthFailed({ message: 'provided user_id does not match target user_id' });
     }
     return user
   }
