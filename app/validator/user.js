@@ -73,6 +73,11 @@ class LoginValidator extends LinValidator {
 class UpdateInfoValidator extends LinValidator {
   constructor() {
     super();
+    this.mobile = [
+      new Rule('isOptional'),
+      new Rule('isLength', '号码长度不正确', { min: 11, max: 11 }),
+      new Rule('matches', '请遵照中国手机号格式', '^(13[0-9]|15[012356789]|17[0678]|18[0-9]|14[57])[0-9]{8}$')
+    ]
     this.email = [
       new Rule('isOptional'),
       new Rule('isEmail', '电子邮箱不符合规范，请输入正确的邮箱')

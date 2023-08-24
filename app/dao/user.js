@@ -92,8 +92,7 @@ class UserDao {
     if (v.get('body.username') && user.username !== v.get('body.username')) {
       const exit = await UserModel.findOne({
         where: {
-          username: v.get('body.username'),
-          nickname: v.get('body.nickname')
+          username: v.get('body.username')
         }
       });
       if (exit) {
