@@ -1,5 +1,5 @@
 import { LinRouter } from 'lin-mizar';
-import { TokenValidator } from '../../validator/user';
+import { TokenValidator, UpdateInfoValidator } from '../../validator/user';
 import { PositiveIdValidator } from '../../validator/common'
 import { UserDao } from '../../dao/user';
 import { groupRequired } from '../../middleware/jwt';
@@ -16,6 +16,20 @@ userApi.post('/token', async ctx => {
   const v = await new TokenValidator().validate(ctx)
   ctx.body = await userDao.registerWechatUser(v)
 })
+
+userApi.linPut(
+  'updateWechatUser',
+  '/',
+  userApi.permission('更新微信用户信息'),
+  groupRequired,
+  async ctx => {
+    const v = await new UpdateInfoValidator().validate(ctx)
+    await userDao.updateWechatUser(ctx, v)
+    ctx.success({
+      code: 6
+    })
+  }
+)
 
 userApi.linGet(
   'getInformation',

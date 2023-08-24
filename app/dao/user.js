@@ -124,6 +124,17 @@ class UserDao {
     await user.save();
   }
 
+  async updateWechatUser(ctx, v) {
+    const user = ctx.currentUser;
+    if (v.get('body.nickname')) {
+      user.nickname = v.get('body.nickname');
+    }
+    if (v.get('body.mobile')) {
+      user.mobile = v.get('body.mobile');
+    }
+    await user.save();
+  }
+
   async getInformation(ctx) {
     const user = ctx.currentUser;
 
