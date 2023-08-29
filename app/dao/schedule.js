@@ -109,7 +109,8 @@ class ScheduleDao {
 
   async getAllSchedules() {
     return await ScheduleModel.findAll({
-      include: { model: UserModel }
+      include: { model: UserModel },
+      order: [['date', 'DESC']]
     })
   }
 
