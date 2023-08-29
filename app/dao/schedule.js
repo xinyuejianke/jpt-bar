@@ -107,6 +107,12 @@ class ScheduleDao {
     })
   }
 
+  async getAllSchedules() {
+    return await ScheduleModel.findAll({
+      include: { model: UserModel }
+    })
+  }
+
   async removeAvailableTime(userId, dateTime, transaction) {
     if (!dateTime instanceof Date) {
       throw new ParametersException({ message: `${dateTime} 必须是 Date 类型` })

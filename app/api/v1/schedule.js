@@ -55,6 +55,16 @@ scheduleApi.linGet(
   }
 )
 
+scheduleApi.linGet(
+  'getAllSchedules',
+  '/',
+  scheduleApi.permission('查看所有排班'),
+  groupRequired,
+  async ctx => {
+    ctx.json(await scheduleDto.getAllSchedules())
+  }
+)
+
 scheduleApi.linDelete(
   'deleteSchedule',
   '/:user_id/:date',
