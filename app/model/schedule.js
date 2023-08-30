@@ -8,6 +8,7 @@ class ScheduleModel extends Model {
 
   toJSON() {
     const origin = {
+      id: this.id,
       user: this.user,
       date: this.date,
       times: this.times,
