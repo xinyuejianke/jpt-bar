@@ -92,6 +92,17 @@ class ScheduleDao {
     return await schedule.destroy()
   }
 
+  async deleteSchedule(id) {
+    const schedule = await ScheduleModel.findOne({ where: { id }, include: UserModel })
+    if (!schedule) {
+      throw new NotFound({ message: `ID 为 ${id} 的排班记录不存在` })
+    }
+    if (schedule.times !== schedule.availableTimes) {
+      throw new Failed({ message: `设定预约时间与可预约时间不一致，请检查工作人员 id：${schedule.user.id}在${schedule.date}是否已经有预约` })
+    }
+    return await schedule.destroy()
+  }
+
   async getEmployeeScheduleOnDate(v) {
     const userId = v.get('path.user_id')
     await userDto.getEmployee(userId)

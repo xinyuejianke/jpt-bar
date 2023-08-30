@@ -1,6 +1,7 @@
 import { LinRouter, disableLoading } from 'lin-mizar';
 import { groupRequired } from '../../middleware/jwt';
 import { ScheduleValidator, SchedulePathValidator, DateValidator, DaysValidator } from '../../validator/schedule';
+import { PositiveIdValidator } from '../../validator/common'
 import { ScheduleDao } from '../../dao/schedule';
 
 
@@ -22,17 +23,6 @@ scheduleApi.linPost(
   }
 )
 
-scheduleApi.linGet(
-  'getEmployeeScheduleOnDate',
-  '/:user_id/:date',
-  scheduleApi.permission('检索排班表'),
-  groupRequired,
-  async ctx => {
-    const v = await new SchedulePathValidator().validate(ctx)
-    ctx.json(await scheduleDto.getEmployeeScheduleOnDate(v))
-  }
-)
-
 scheduleApi.linPut(
   'updateEmployeeScheduleOnDate',
   '/',
@@ -45,6 +35,17 @@ scheduleApi.linPut(
 )
 
 scheduleApi.linGet(
+  'getEmployeeScheduleOnDate',
+  '/:user_id/:date',
+  scheduleApi.permission('检索排班表'),
+  groupRequired,
+  async ctx => {
+    const v = await new SchedulePathValidator().validate(ctx)
+    ctx.json(await scheduleDto.getEmployeeScheduleOnDate(v))
+  }
+)
+
+scheduleApi.linGet(
   'getAllSchedulesOnDate',
   '/:date',
   scheduleApi.permission('查看当日所有排班'),
@@ -52,6 +53,17 @@ scheduleApi.linGet(
   async ctx => {
     const v = await new DateValidator().validate(ctx)
     ctx.json(await scheduleDto.getAllSchedulesOnDate(v.get('path.date')))
+  }
+)
+
+scheduleApi.linGet(
+  'getScheduleById',
+  '/get/by/:id',
+  scheduleApi.permission('根据id查看排班'),
+  groupRequired,
+  async ctx => {
+    const v = await new PositiveIdValidator().validate(ctx)
+    ctx.json(await scheduleDto.getSchedule(v.get('path.id')))
   }
 )
 
@@ -73,6 +85,17 @@ scheduleApi.linDelete(
   async ctx => {
     const v = await new SchedulePathValidator().validate(ctx)
     ctx.json(await scheduleDto.deleteEmployeeScheduleOnDate(v))
+  }
+)
+
+scheduleApi.linDelete(
+  'deleteSchedule',
+  '/:id',
+  scheduleApi.permission('根据ID删除排班表'),
+  groupRequired,
+  async ctx => {
+    const v = await new PositiveIdValidator().validate(ctx)
+    ctx.json(await scheduleDto.deleteSchedule(v.get('path.id')))
   }
 )
 
