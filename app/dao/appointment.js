@@ -86,6 +86,28 @@ class AppointmentDao {
     return appointments
   }
 
+  async deleteAppointment(id) {
+    let transaction;
+    try {
+      const appointment = await AppointmentModel.findOne({
+        where: { id },
+        include: [{ model: UserModel }, { model: MemberModel }]
+      })
+      if (!appointment) {
+        throw new NotFound({ message: `未找到预约id：${id} 的记录` })
+      }
+      await scheduleDao.addAvailableTime(appointment.user.id, appointment.dateTime, transaction)
+      await appointment.destroy({ transaction })
+      await transaction.commit()
+      return appointment
+    } catch (error) {
+      if (transaction) {
+        await transaction.rollback()
+        throw new Failed(error)
+      }
+    }
+  }
+
   async deleteUnexpiredAppointment(v) {
     let transaction;
     try {

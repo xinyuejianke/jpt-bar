@@ -32,16 +32,6 @@ class ScheduleDao {
     return await ScheduleModel.findOne({ where: { id }, include: UserModel })
   }
 
-  getFormattedDate(date) {
-    if (!date instanceof Date) {
-      throw new ParametersException({ message: `${date} 必须是 Date 类型` })
-    }
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-  }
-
   async getAllSchedulesNextNDays(days) {
     let dates = []
     const today = new Date()
@@ -142,9 +132,7 @@ class ScheduleDao {
   }
 
   async removeAvailableTime(userId, dateTime, transaction) {
-    if (!dateTime instanceof Date) {
-      throw new ParametersException({ message: `${dateTime} 必须是 Date 类型` })
-    }
+    this.isDateType(dateTime)
     const date = this.getFormattedDate(dateTime)
 
     const schedule = await ScheduleModel.findOne({ where: { userId, date } })
@@ -164,12 +152,10 @@ class ScheduleDao {
   }
 
   async addAvailableTime(userId, dateTime, transaction) {
-    if (!dateTime instanceof Date) {
-      throw new ParametersException({ message: `${dateTime} 必须是 Date 类型` })
-    }
-    const dateTimeArr = dateTime.split(' ')
-    const date = dateTimeArr[0]
-    const time = dateTimeArr[1]
+    this.isDateType(dateTime)
+    const formattedDateTime = this.getFormattedDateTime(new Date(dateTime))
+    const date = formattedDateTime.date
+    const time = formattedDateTime.time
 
     const schedule = await ScheduleModel.findOne({ where: { userId, date } })
     if (!schedule) {
@@ -185,6 +171,29 @@ class ScheduleDao {
     schedule.availableTimes = availableTimes.sort().toString()
     return await schedule.save({ transaction })
   }
+
+  getFormattedDate(date) {
+    this.isDateType(date)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  getFormattedDateTime(dateTime) {
+    this.isDateType(dateTime)
+    const date = this.getFormattedDate(dateTime)
+    const time = dateTime.toTimeString().split(' ')[0].substring(0, 5)
+    return { date, time, dateTime: `${date} ${time}` }
+  }
+
+  isDateType(date) {
+    if (!date instanceof Date) {
+      throw new ParametersException({ message: `${date} 必须是 Date 类型` })
+    }
+    return true
+  }
+
 }
 
 export { ScheduleDao };

@@ -85,4 +85,16 @@ appointmentApi.linDelete(
   }
 )
 
+appointmentApi.linDelete(
+  'deleteAppointment',
+  '/:id',
+  appointmentApi.permission('删除预约'),
+  adminRequired,
+  async ctx => {
+    const v = await new PositiveIdValidator().validate(ctx)
+    await appointmentDto.deleteAppointment(v.get('path.id'))
+    ctx.success({ message: '成功删除预约' })
+  }
+)
+
 module.exports = { appointmentApi, [disableLoading]: false };
