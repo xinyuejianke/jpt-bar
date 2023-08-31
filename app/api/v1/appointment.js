@@ -2,7 +2,7 @@ import { LinRouter, disableLoading } from 'lin-mizar';
 import { AppointmentValidator } from '../../validator/appointment';
 import { PositiveIdValidator } from '../../validator/common';
 import { getSafeParamId } from '../../lib/util';
-import { groupRequired } from '../../middleware/jwt';
+import { adminRequired, groupRequired } from '../../middleware/jwt';
 import { AppointmentDao } from '../../dao/appointment';
 
 
@@ -34,6 +34,17 @@ appointmentApi.linGet(
     const appointmentId = getSafeParamId(ctx)
     const appointment = await appointmentDto.getAppointment(appointmentId)
     ctx.json(appointment)
+  }
+)
+
+appointmentApi.linGet(
+  'getAllAppointments',
+  '/',
+  appointmentApi.permission('查看预约历史'),
+  adminRequired,
+  async ctx => {
+    const appointments = await appointmentDto.getAllAppointments()
+    ctx.json(appointments)
   }
 )
 

@@ -77,6 +77,22 @@ class ScheduleDao {
     return await schedule.save()
   }
 
+  async updateEmployeeSchedule(v) {
+    const scheduleId = v.get('path.id')
+    const schedule = await ScheduleModel.findOne({ where: { id: scheduleId }, include: UserModel })
+
+    if (!schedule) {
+      throw new NotFound({ message: `更新失败：没有找到id：${id} 的排班` })
+    }
+    if (schedule.times !== schedule.availableTimes) {
+      throw new Failed({ message: `设定预约时间与可预约时间不一致，请检查工作人员 id：${schedule.user.id}在${schedule.date}是否已经有预约` })
+    }
+    const times = v.get('body.times')
+    schedule.times = times
+    schedule.availableTimes = times
+    return await schedule.save()
+  }
+
   async deleteEmployeeScheduleOnDate(v) {
     const userId = v.get('path.user_id')
     await userDto.getEmployee(userId)

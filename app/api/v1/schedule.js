@@ -34,6 +34,17 @@ scheduleApi.linPut(
   }
 )
 
+scheduleApi.linPut(
+  'updateScheduleById',
+  '/:id',
+  scheduleApi.permission('根据ID更新排班表'),
+  groupRequired,
+  async ctx => {
+    const v = await new ScheduleValidator().validate(ctx)
+    ctx.json(await scheduleDto.updateEmployeeSchedule(v))
+  }
+)
+
 scheduleApi.linGet(
   'getEmployeeScheduleOnDate',
   '/:user_id/:date',
@@ -77,6 +88,18 @@ scheduleApi.linGet(
   }
 )
 
+scheduleApi.linGet(
+  'getAllSchedulesNextNDays',
+  '/next/:days/days',
+  scheduleApi.permission('查看未来N天的所有排班'),
+  groupRequired,
+  async ctx => {
+    const v = await new DaysValidator().validate(ctx)
+    ctx.json(await scheduleDto.getAllSchedulesNextNDays(v.get('path.days')))
+  }
+)
+
+
 scheduleApi.linDelete(
   'deleteSchedule',
   '/:user_id/:date',
@@ -96,17 +119,6 @@ scheduleApi.linDelete(
   async ctx => {
     const v = await new PositiveIdValidator().validate(ctx)
     ctx.json(await scheduleDto.deleteSchedule(v.get('path.id')))
-  }
-)
-
-scheduleApi.linGet(
-  'getAllSchedulesNextNDays',
-  '/next/:days/days',
-  scheduleApi.permission('查看未来N天的所有排班'),
-  groupRequired,
-  async ctx => {
-    const v = await new DaysValidator().validate(ctx)
-    ctx.json(await scheduleDto.getAllSchedulesNextNDays(v.get('path.days')))
   }
 )
 

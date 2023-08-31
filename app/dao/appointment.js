@@ -50,6 +50,12 @@ class AppointmentDao {
     })
   }
 
+  async getAllAppointments() {
+    return await AppointmentModel.findAll({
+      include: [{ model: UserModel }, { model: MemberModel }]
+    })
+  }
+
   async getHistoricalAppointments(userId) {
     await userDao.getWechatUser(userId)
     const members = await membershipDao.getAllMembers(userId)

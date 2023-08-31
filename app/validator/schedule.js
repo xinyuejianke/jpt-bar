@@ -6,6 +6,10 @@ const DATE_RULE = new Rule('matches', "date must follow format 'YYYY-MM-DD'", '^
 class ScheduleValidator extends LinValidator {
   constructor() {
     super()
+    this.id = [
+      new Rule('isOptional'),
+      new Rule('isInt', 'schedule_id must be a positive integer', { min: 1 })
+    ]
     this.user_id = [USER_ID_RULE]
     this.date = [DATE_RULE]
     this.times = [
