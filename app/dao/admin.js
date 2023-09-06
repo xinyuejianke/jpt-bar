@@ -12,7 +12,7 @@ import { Op } from 'sequelize';
 import { has, set, get } from 'lodash';
 
 class AdminDao {
-  async getAllPermissions () {
+  async getAllPermissions() {
     const permissions = await PermissionModel.findAll({
       where: {
         mount: MountType.Mount
@@ -34,7 +34,7 @@ class AdminDao {
     return result;
   }
 
-  async getUsers (groupId, page, count1) {
+  async getUsers(groupId, page, count1) {
     let userIds = [];
     const condition = {
       where: {
@@ -81,7 +81,7 @@ class AdminDao {
     };
   }
 
-  async changeUserPassword (ctx, v) {
+  async changeUserPassword(ctx, v) {
     const user = await UserModel.findByPk(v.get('path.id'));
     if (!user) {
       throw new NotFound({
@@ -91,7 +91,7 @@ class AdminDao {
     await UserIdentityModel.resetPassword(user, v.get('body.new_password'));
   }
 
-  async deleteUser (ctx, id) {
+  async deleteUser(ctx, id) {
     const user = await UserModel.findOne({
       where: {
         id
@@ -137,13 +137,17 @@ class AdminDao {
     }
   }
 
-  async updateUserInfo (ctx, v) {
+  async updateUserInfo(ctx, v) {
     const user = await UserModel.findByPk(v.get('path.id'));
     if (!user) {
       throw new NotFound({
         code: 10021
       });
     }
+    //update user info
+    user.nickname = v.get('body.nickname')
+    user.mobile = v.get('body.mobile')
+    user.save()
 
     const userGroup = await UserGroupModel.findAll({
       where: {
@@ -206,7 +210,7 @@ class AdminDao {
     }
   }
 
-  async getGroups (ctx, page, count1) {
+  async getGroups(ctx, page, count1) {
     const { rows, count } = await GroupModel.findAndCountAll({
       offset: page * count1,
       limit: count1
@@ -218,7 +222,7 @@ class AdminDao {
     };
   }
 
-  async getAllGroups () {
+  async getAllGroups() {
     const allGroups = await GroupModel.findAll({
       where: {
         level: {
@@ -229,7 +233,7 @@ class AdminDao {
     return allGroups;
   }
 
-  async getGroup (ctx, id) {
+  async getGroup(ctx, id) {
     const group = await GroupModel.findByPk(id);
     if (!group) {
       throw new NotFound({
@@ -256,7 +260,7 @@ class AdminDao {
     return set(group, 'permissions', permissions);
   }
 
-  async createGroup (ctx, v) {
+  async createGroup(ctx, v) {
     const group = await GroupModel.findOne({
       where: {
         name: v.get('body.name')
@@ -314,7 +318,7 @@ class AdminDao {
     return true;
   }
 
-  async updateGroup (ctx, v) {
+  async updateGroup(ctx, v) {
     const group = await GroupModel.findByPk(v.get('path.id'));
     if (!group) {
       throw new NotFound({
@@ -326,7 +330,7 @@ class AdminDao {
     await group.save();
   }
 
-  async deleteGroup (ctx, id) {
+  async deleteGroup(ctx, id) {
     const group = await GroupModel.findByPk(id);
     if (!group) {
       throw new NotFound({
@@ -367,7 +371,7 @@ class AdminDao {
     }
   }
 
-  async dispatchPermission (ctx, v) {
+  async dispatchPermission(ctx, v) {
     const group = await GroupModel.findByPk(v.get('body.group_id'));
     if (!group) {
       throw new NotFound({
@@ -404,7 +408,7 @@ class AdminDao {
     });
   }
 
-  async dispatchPermissions (ctx, v) {
+  async dispatchPermissions(ctx, v) {
     const group = await GroupModel.findByPk(v.get('body.group_id'));
     if (!group) {
       throw new NotFound({
@@ -445,7 +449,7 @@ class AdminDao {
     }
   }
 
-  async removePermissions (ctx, v) {
+  async removePermissions(ctx, v) {
     const group = await GroupModel.findByPk(v.get('body.group_id'));
     if (!group) {
       throw new NotFound({
