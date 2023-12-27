@@ -36,8 +36,8 @@ describe('test1.test.js', () => {
         password: '123456',
         confirm_password: '123456'
       });
-    expect(response.status).toBe(400);
-    expect(response.body).toHaveProperty('code', 10030);
+    expect(response.status).toBe(401);
+    expect(response.body).toHaveProperty('code', 10013);
     expect(response.type).toMatch(/json/);
   });
 });

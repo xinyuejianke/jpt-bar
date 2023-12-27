@@ -87,23 +87,23 @@ describe('user2.test.js', () => {
     expect(response.type).toMatch(/json/);
   });
 
-  // test('测试/cms/user/register 正常注册', async () => {
-  //   const token = getToken()
-  //   const response = await request(app.callback())
-  //     .post('/cms/user/register')
-  //     .auth(token, {
-  //       type: 'bearer'
-  //     })
-  //     .send({
-  //       username: 'peter',
-  //       email: '123456@gmail.com',
-  //       group_ids: [],
-  //       password: '123456',
-  //       confirm_password: '123456',
-  //     });
-  //   expect(response.status).toBe(201);
-  //   expect(response.type).toMatch(/json/);
-  // });
+  test('测试/cms/user/register 正常注册', async () => {
+    const token = getToken()
+    const response = await request(app.callback())
+      .post('/cms/user/register')
+      .auth(token, {
+        type: 'bearer'
+      })
+      .send({
+        username: 'peter',
+        email: '123456@gmail.com',
+        group_ids: [],
+        password: '123456',
+        confirm_password: '123456',
+      });
+    expect(response.status).toBe(201);
+    expect(response.type).toMatch(/json/);
+  });
 
   test('测试/cms/user/register 用户名重复错误', async () => {
     const token = getToken();

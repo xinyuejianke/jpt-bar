@@ -181,20 +181,23 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- 插入root分组
 -- ----------------------------
 BEGIN;
-INSERT INTO lin_user(id, username, nickname)
-VALUES (1, 'root', 'root');
+INSERT INTO lin_user(id, username, nickname, create_time, update_time)
+VALUES (1, 'root', 'root', NOW(), NOW());
 
-INSERT INTO lin_user_identity (id, user_id, identity_type, identifier, credential)
+INSERT INTO lin_user_identity (id, user_id, identity_type, identifier, credential, create_time, update_time)
 VALUES (1, 1, 'USERNAME_PASSWORD', 'root',
-        'sha1$c419e500$1$84869e5560ebf3de26b6690386484929456d6c07');
+        'sha1$c419e500$1$84869e5560ebf3de26b6690386484929456d6c07', NOW(), NOW());
 
-INSERT INTO lin_group(id, name, info, level)
-VALUES (1, 'root', '超级用户组', 1);
-
-INSERT INTO lin_group(id, name, info, level)
-VALUES (2, 'guest', '游客组', 2);
+INSERT INTO lin_group(id, name, info, level, create_time, update_time)
+VALUES (1, 'root', '超级用户组', 1, NOW(), NOW());
 
 INSERT INTO lin_user_group(id, user_id, group_id)
 VALUES (1, 1, 1);
+
+INSERT INTO lin_group(id, name, info, level, create_time, update_time)
+VALUES (2, '工作人员', '工作人员', 2, NOW(), NOW());
+
+INSERT INTO lin_group(id, name, info, level, create_time, update_time)
+VALUES (3, '顾客', '终端用户', 3, NOW(), NOW());
 
 COMMIT;

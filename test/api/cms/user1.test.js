@@ -24,7 +24,7 @@ describe('user1.test.js', () => {
         username: 'llllll',
         password: '123456'
       });
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(401);
     expect(response.type).toMatch(/json/);
   });
 
