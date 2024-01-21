@@ -22,7 +22,10 @@ memberApi.linPost(
   groupRequired,
   async (ctx) => {
     const v = await new MemberValidator().validate(ctx)
-    ctx.json(await memberDto.createMember(v))
+    ctx.success({
+      code: 1,
+      member: await memberDto.createMember(v)
+    })
   })
 
 memberApi.linDelete(
