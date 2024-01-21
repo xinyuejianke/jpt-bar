@@ -33,7 +33,10 @@ scheduleApi.linPut(
   groupRequired,
   async ctx => {
     const v = await new ScheduleValidator().validate(ctx)
-    ctx.json(await scheduleDto.updateEmployeeScheduleOnDate(v))
+    ctx.success({
+      code: 2,
+      schedule: await scheduleDto.updateEmployeeScheduleOnDate(v)
+    })
   }
 )
 
@@ -44,7 +47,10 @@ scheduleApi.linPut(
   groupRequired,
   async ctx => {
     const v = await new ScheduleValidator().validate(ctx)
-    ctx.json(await scheduleDto.updateEmployeeSchedule(v))
+    ctx.success({
+      code:2,
+      schedule: await scheduleDto.updateEmployeeSchedule(v)
+    })
   }
 )
 
