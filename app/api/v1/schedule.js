@@ -19,7 +19,10 @@ scheduleApi.linPost(
   groupRequired,
   async ctx => {
     const v = await new ScheduleValidator().validate(ctx)
-    ctx.json(await scheduleDto.createSchedule(v))
+    ctx.success({
+      code: 1,
+      schedule: await scheduleDto.createSchedule(v)
+    })
   }
 )
 
