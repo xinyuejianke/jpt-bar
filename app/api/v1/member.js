@@ -37,7 +37,7 @@ memberApi.linDelete(
     await new PositiveIdValidator().validate(ctx);
     const id = getSafeParamId(ctx);
     await memberDto.deleteMember(id)
-    ctx.success({ code: 20002 });
+    ctx.success({ code: 3 });
   }
 )
 
@@ -68,7 +68,7 @@ memberApi.put('/:id', async (ctx) => {
   const id = getSafeParamId(ctx);
   await memberDto.updateMember(v, id)
 
-  ctx.success({ code: 20003 })
+  ctx.success({ code: 2 })
 })
 
 
