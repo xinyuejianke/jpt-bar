@@ -36,42 +36,22 @@ class AdminDao {
 
   async getUsers(groupId, page, count1) {
     let userIds = [];
-    const condition = {
-      where: {
-        username: {
-          [Op.ne]: 'root'
-        }
-      },
+    const condition = { 
+      where: { username: { [Op.ne]: 'root' } },
       offset: page * count1,
       limit: count1
     };
     if (groupId) {
-      const userGroup = await UserGroupModel.findAll({
-        where: {
-          group_id: groupId
-        }
-      });
+      const userGroup = await UserGroupModel.findAll({ where: { group_id: groupId } });
       userIds = userGroup.map(v => v.user_id);
-      set(condition, 'where.id', {
-        [Op.in]: userIds
-      });
+      set(condition, 'where.id', { [Op.in]: userIds });
     }
     const { rows, count } = await UserModel.findAndCountAll(condition);
 
     for (const user of rows) {
-      const userGroup = await UserGroupModel.findAll({
-        where: {
-          user_id: user.id
-        }
-      });
+      const userGroup = await UserGroupModel.findAll({ where: { user_id: user.id } });
       const groupIds = userGroup.map(v => v.group_id);
-      const groups = await GroupModel.findAll({
-        where: {
-          id: {
-            [Op.in]: groupIds
-          }
-        }
-      });
+      const groups = await GroupModel.findAll({ where: { id: { [Op.in]: groupIds } } });
       set(user, 'groups', groups);
     }
 
