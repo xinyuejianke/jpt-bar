@@ -22,10 +22,7 @@ memberApi.linPost(
   groupRequired,
   async (ctx) => {
     const v = await new MemberValidator().validate(ctx)
-    ctx.success({
-      code: 1,
-      member: await memberDto.createMember(v)
-    })
+    ctx.json(await memberDto.createMember(v))
   })
 
 memberApi.linDelete(
@@ -63,13 +60,17 @@ memberApi.linGet(
   }
 )
 
-memberApi.put('/:id', async (ctx) => {
-  const v = await new PositiveIdValidator().validate(ctx)
-  const id = getSafeParamId(ctx);
-  await memberDto.updateMember(v, id)
-
-  ctx.success({ code: 2 })
-})
+memberApi.linPut(
+  'putMember',
+  '/:id',
+  memberApi.permission('更新member信息'),
+  groupRequired,
+  async (ctx) => {
+    const v = await new PositiveIdValidator().validate(ctx)
+    const id = getSafeParamId(ctx);
+    ctx.json(await memberDto.updateMember(v, id))
+  }
+)
 
 
 module.exports = { memberApi, [disableLoading]: false };

@@ -25,6 +25,20 @@ membershipApi.linPost(
   }
 )
 
+membershipApi.linPut(
+  'bindExistedMember',
+  '/bind',
+  membershipApi.permission('绑定已存在成员'),
+  groupRequired,
+  async ctx => {
+    const v = await new MembershipValidator().validate(ctx);
+    ctx.success({
+      code: 1,
+      membership: await membershipDto.bindExistedMember(v)
+    })
+  }
+)
+
 membershipApi.linDelete(
   'deleteMembership',
   '/:id',

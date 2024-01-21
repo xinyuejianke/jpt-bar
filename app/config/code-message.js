@@ -79,9 +79,11 @@ module.exports = {
     10250: '请使用正确类型的令牌',
     10251: '请使用正确作用域的令牌',
     10260: '请输入正确的验证码',
+    20401: 'member信息不匹配',
     20404: 'member不存在',
     30001: '新建membership成功',
     30002: '删除membership成功',
+    30403: 'membership 已存在',
     30404: 'membership不存在',
     40401: 'Fail to obtain openid',
   }
