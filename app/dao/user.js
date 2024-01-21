@@ -139,17 +139,11 @@ class UserDao {
     const user = ctx.currentUser;
 
     const userGroup = await UserGroupModel.findAll({
-      where: {
-        user_id: user.id
-      }
+      where: { user_id: user.id }
     });
     const groupIds = userGroup.map(v => v.group_id);
     const groups = await GroupModel.findAll({
-      where: {
-        id: {
-          [Op.in]: groupIds
-        }
-      }
+      where: { id: { [Op.in]: groupIds } }
     });
 
     set(user, 'groups', groups);
@@ -371,6 +365,23 @@ class UserDao {
     }
     return user
   }
+
+  //get all user in '工作人员' group 
+  async getAllEmployeeUser() {
+    const groupName = '工作人员'
+    const employees = await sequelize.query("SELECT u.* \n" +
+      "FROM lin_user u \n" +
+      "LEFT JOIN lin_user_group ug ON u.id = ug.user_id \n" +
+      "LEFT JOIN lin_group g ON ug.group_id = g.id \n" +
+      `WHERE g.name = '${groupName}'`,
+      { model: UserModel, mapToModel: true }
+    )
+    if (employees.length === 0) {
+      throw new NotFound({ message: `无法在[${groupName}组]中找到任何用户` })
+    }
+    return employees
+  }
+
 
   formatPermissions(permissions) {
     const map = {};

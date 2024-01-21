@@ -30,6 +30,7 @@ const sequelize = new Sequelize(database, username, password, {
 
 sequelize.sync({
   force: false
+  // force: true
 });
 
 export default sequelize;

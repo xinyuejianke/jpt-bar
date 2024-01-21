@@ -124,6 +124,17 @@ user.linGet(
 );
 
 user.linGet(
+  'getAllEmployeeUser',
+  '/employees',
+  user.permission('获取所有员工信息'),
+  loginRequired,
+  async ctx => {
+    const employees = await userDao.getAllEmployeeUser()
+    ctx.json(employees)
+  }
+)
+
+user.linGet(
   'userGetPermissions',
   '/permissions',
   user.permission('查询自己拥有的权限'),

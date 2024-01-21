@@ -6,7 +6,7 @@ module.exports = {
   countDefault: 10,
   pageDefault: 0,
   apiDir: 'app/api',
-  accessExp: 60 * 60 * 24 * 30, // 1h 单位秒
+  accessExp: 60 * 60 * 2, // 1h 单位秒
   // 指定工作目录，默认为 process.cwd() 路径
   baseDir: path.resolve(__dirname, '../../'),
   // debug 模式
