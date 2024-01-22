@@ -3,6 +3,7 @@ import { MemberModel } from '../model/member.js'
 import { MembershipModel } from '../model/membership.js';
 import { UserModel } from '../model/user.js';
 import { Op } from 'sequelize'
+import sequelize from '../lib/db.js';
 
 
 class MembershipDao {
@@ -16,13 +17,8 @@ class MembershipDao {
     return await MemberModel.findAll({ where: { id: { [Op.in]: memberIds } } })
   }
 
-  async createMembership(v) {
-    const userId = v.get('body.user_id')
-    const memberId = v.get('body.member_id')
-    await this._createMembership(userId, memberId)
-  }
 
-  async _createMembership(userId, memberId) {
+  async createMembership(userId, memberId) {
     const membership = new MembershipModel()
 
     membership.userId = userId
@@ -62,16 +58,19 @@ class MembershipDao {
     if (membership) {
       throw new Forbidden({ code: 30403 })
     }
-    await this._createMembership(membershipInfo.userId, membershipInfo.memberId)
+    await this.createMembership(membershipInfo.userId, membershipInfo.memberId)
   }
 
-  async deleteMembership(id) {
-    const membership = await MembershipModel.findOne({ where: { id } })
+  async deleteMembership(userId, memberId) {
+    const membership = await MembershipModel.findOne({ where: { userId, memberId } })
 
     if (!membership) {
       throw new NotFound({ code: 30404 });
     }
-    membership.destroy();
+    // membership.destroy();
+    sequelize.transaction(async t => {
+      await membership.destroy({ force: true, transaction: t })
+    })
   }
 }
 

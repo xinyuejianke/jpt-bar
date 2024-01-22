@@ -20,35 +20,32 @@ membershipApi.linPost(
   groupRequired,
   async ctx => {
     const v = await new MembershipValidator().validate(ctx)
-    await membershipDto.createMembership(v)
+    await membershipDto.createMembership(v.get('body.user_id'), v.get('body.member_id'))
     ctx.success({ code: 30001 })
   }
 )
 
-membershipApi.linPut(
+membershipApi.linPost(
   'bindExistedMember',
   '/bind',
   membershipApi.permission('绑定已存在成员'),
   groupRequired,
   async ctx => {
     const v = await new MembershipValidator().validate(ctx);
-    ctx.success({
-      code: 1,
-      membership: await membershipDto.bindExistedMember(v)
-    })
+    await membershipDto.bindExistedMember(v)
+    ctx.success({code: 2})
   }
 )
 
 membershipApi.linDelete(
   'deleteMembership',
-  '/:id',
+  '/',
   membershipApi.permission('解绑成员'),
   groupRequired,
   async ctx => {
-    const v = await new PositiveIdValidator().validate(ctx);
-    const id = v.get('path.id');
-    await membershipDto.deleteMembership(id)
-    ctx.success({ code: 30002 });
+    const v = await new MembershipValidator().validate(ctx);
+    await membershipDto.deleteMembership(v.get('body.user_id'), v.get('body.member_id'))
+    ctx.success({ code: 3 });
   }
 )
 
