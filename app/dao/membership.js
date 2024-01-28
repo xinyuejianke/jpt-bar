@@ -45,7 +45,7 @@ class MembershipDao {
     }
 
     //check member available
-    const member = await MemberModel.findOne({ where: { id: membershipInfo.memberId }})
+    const member = await MemberModel.findOne({ where: { id: membershipInfo.memberId } })
     if (!member) {
       throw new NotFound({ code: 20404 })
     }
@@ -54,7 +54,7 @@ class MembershipDao {
       throw new AuthFailed({ code: 20401 })
     }
     //check membership is existed
-    const membership = await MembershipModel.findOne({ where: {userId: membershipInfo.userId, memberId: membershipInfo.memberId}})
+    const membership = await MembershipModel.findOne({ where: { userId: membershipInfo.userId, memberId: membershipInfo.memberId } })
     if (membership) {
       throw new Forbidden({ code: 30403 })
     }

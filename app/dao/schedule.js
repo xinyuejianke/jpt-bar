@@ -161,8 +161,8 @@ class ScheduleDao {
     if (!schedule) {
       throw new NotFound({ message: `找不到工作人员id：${userId} 在 ${date} 的排班记录` })
     }
-
-    const availableTimes = schedule.availableTimes.split(',')
+    //avoid split empty string ('') become array ['']
+    const availableTimes = schedule.availableTimes === '' ? [] : schedule.availableTimes.split(',')
     const isAvailable = availableTimes.indexOf(time)
     if (isAvailable !== -1) {
       throw new Failed({ message: `在availableTimes 已存在 ${time} 时间)` })
