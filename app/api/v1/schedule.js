@@ -1,7 +1,7 @@
 import { LinRouter, disableLoading } from 'lin-mizar';
-import { groupRequired } from '../../middleware/jwt';
+import { adminRequired, groupRequired } from '../../middleware/jwt';
 import { ScheduleValidator, SchedulePathValidator, DateValidator, DaysValidator } from '../../validator/schedule';
-import { PositiveIdValidator } from '../../validator/common'
+import { PositiveIdValidator, PaginateValidator } from '../../validator/common'
 import { ScheduleDao } from '../../dao/schedule';
 
 
@@ -48,7 +48,7 @@ scheduleApi.linPut(
   async ctx => {
     const v = await new ScheduleValidator().validate(ctx)
     ctx.success({
-      code:2,
+      code: 2,
       schedule: await scheduleDto.updateEmployeeSchedule(v)
     })
   }
@@ -94,6 +94,20 @@ scheduleApi.linGet(
   groupRequired,
   async ctx => {
     ctx.json(await scheduleDto.getAllSchedules())
+  }
+)
+
+scheduleApi.linGet(
+  'getSchedulesByPage',
+  '/results/group/by/page',
+  scheduleApi.permission('查看所有排班'),
+  adminRequired,
+  async ctx => {
+    const v = await new PaginateValidator().validate(ctx)
+    ctx.json(await scheduleDto.getScheduleList(
+      v.get('body.page'),
+      v.get('body.count')
+    ))
   }
 )
 

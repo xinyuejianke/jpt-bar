@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import { UserDao } from '../dao/user'
 import { ScheduleModel } from '../model/schedule'
 import { UserModel } from '../model/user';
+import sequelize from '../lib/db'
 
 const userDto = new UserDao()
 
@@ -30,6 +31,21 @@ class ScheduleDao {
 
   async getSchedule(id) {
     return await ScheduleModel.findOne({ where: { id }, include: UserModel })
+  }
+
+  async getScheduleList(page, rowsPerPage) {
+    const scheduleQuery = `SELECT s.* \n` +
+      `FROM schedules s\n` +
+      `JOIN lin_user_group ug ON s.userId = ug.user_id\n` +
+      `JOIN lin_group g ON ug.group_id = g.id\n` +
+      `WHERE name = '工作人员' ORDER BY s.id LIMIT ${rowsPerPage} OFFSET ${(page) * rowsPerPage}`
+
+    const schedules = await sequelize.query(scheduleQuery, { model: ScheduleModel, mapToModel: true })
+
+    return {
+      schedules,
+      total: schedules.length
+    };
   }
 
   async getAllSchedulesNextNDays(days) {
