@@ -4,7 +4,6 @@ import { UserDao } from '../dao/user'
 import { ScheduleModel } from '../model/schedule'
 import { UserModel } from '../model/user';
 import sequelize from '../lib/db'
-import { INTEGER } from 'sequelize';
 
 const userDto = new UserDao()
 
