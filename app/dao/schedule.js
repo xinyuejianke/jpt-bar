@@ -43,13 +43,12 @@ class ScheduleDao {
       `ORDER BY s.id LIMIT ${rowsPerPage} OFFSET ${(pageNumber) * rowsPerPage}`
 
     const schedules = await sequelize.query(scheduleQuery, { model: ScheduleModel, mapToModel: true })
-    const totalSchedules = (await ScheduleModel.findAndCountAll()).count
 
     return {
       schedules,
       pageNumber: parseInt(pageNumber),
       rowsPerPage: parseInt(rowsPerPage),
-      totalSchedules
+      totalSchedules: (await ScheduleModel.findAndCountAll()).count
     };
   }
 
