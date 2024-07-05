@@ -4,6 +4,7 @@ import { UserDao } from '../dao/user'
 import { ScheduleModel } from '../model/schedule'
 import { UserModel } from '../model/user';
 import sequelize from '../lib/db'
+import { INTEGER } from 'sequelize';
 
 const userDto = new UserDao()
 
@@ -33,18 +34,22 @@ class ScheduleDao {
     return await ScheduleModel.findOne({ where: { id }, include: UserModel })
   }
 
-  async getScheduleList(page, rowsPerPage) {
+  async getScheduleList(pageNumber, rowsPerPage) {
     const scheduleQuery = `SELECT s.* \n` +
       `FROM schedules s\n` +
       `JOIN lin_user_group ug ON s.userId = ug.user_id\n` +
       `JOIN lin_group g ON ug.group_id = g.id\n` +
-      `WHERE name = '工作人员' ORDER BY s.id LIMIT ${rowsPerPage} OFFSET ${(page) * rowsPerPage}`
+      `WHERE name = '工作人员'\n` +
+      `ORDER BY s.id LIMIT ${rowsPerPage} OFFSET ${(pageNumber) * rowsPerPage}`
 
     const schedules = await sequelize.query(scheduleQuery, { model: ScheduleModel, mapToModel: true })
+    const totalSchedules = (await ScheduleModel.findAndCountAll()).count
 
     return {
       schedules,
-      total: schedules.length
+      pageNumber: parseInt(pageNumber),
+      rowsPerPage: parseInt(rowsPerPage),
+      totalSchedules
     };
   }
 

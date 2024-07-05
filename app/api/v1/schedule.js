@@ -100,13 +100,13 @@ scheduleApi.linGet(
 scheduleApi.linGet(
   'getSchedulesByPage',
   '/results/group/by/page',
-  scheduleApi.permission('查看所有排班'),
+  scheduleApi.permission('查看第N页的排班'),
   adminRequired,
   async ctx => {
     const v = await new PaginateValidator().validate(ctx)
     ctx.json(await scheduleDto.getScheduleList(
-      v.get('body.page'),
-      v.get('body.count')
+      v.get('query.pageNumber'),
+      v.get('query.rowsPerPage')
     ))
   }
 )
