@@ -75,7 +75,7 @@ class ScheduleDao {
       schedules,
       pageNumber: parseInt(pageNumber),
       rowsPerPage: parseInt(rowsPerPage),
-      totalSchedules
+      totalSchedules: totalSchedules.count
     };
   }
 
