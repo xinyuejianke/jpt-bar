@@ -60,11 +60,22 @@ class ScheduleDao {
       }
     )
 
+    let totalSchedules = 0;
+    if (!date && !userId) {
+      totalSchedules = await ScheduleModel.findAndCountAll()
+    } else if (date && !userId) {
+      totalSchedules = await ScheduleModel.findAndCountAll({ where: { date } })
+    } else if (!date && userId) {
+      totalSchedules = await ScheduleModel.findAndCountAll({ where: { userId } })
+    } else {
+      totalSchedules = await ScheduleModel.findAndCountAll({ where: { date, userId } })
+    }
+
     return {
       schedules,
       pageNumber: parseInt(pageNumber),
       rowsPerPage: parseInt(rowsPerPage),
-      totalSchedules: (await ScheduleModel.findAndCountAll()).count
+      totalSchedules
     };
   }
 
