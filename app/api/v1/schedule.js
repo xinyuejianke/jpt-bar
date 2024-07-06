@@ -1,7 +1,7 @@
 import { LinRouter, disableLoading } from 'lin-mizar';
 import { adminRequired, groupRequired } from '../../middleware/jwt';
 import { ScheduleValidator, SchedulePathValidator, DateValidator, DaysValidator } from '../../validator/schedule';
-import { PositiveIdValidator, PaginateValidator } from '../../validator/common'
+import { PageSystemValidator, PositiveIdValidator } from '../../validator/common'
 import { ScheduleDao } from '../../dao/schedule';
 
 
@@ -103,10 +103,12 @@ scheduleApi.linGet(
   scheduleApi.permission('查看第N页的排班'),
   adminRequired,
   async ctx => {
-    const v = await new PaginateValidator().validate(ctx)
+    const v = await new PageSystemValidator().validate(ctx)
     ctx.json(await scheduleDto.getScheduleList(
       v.get('query.pageNumber'),
-      v.get('query.rowsPerPage')
+      v.get('query.rowsPerPage'),
+      v.get('query.date'),
+      v.get('query.userId'),
     ))
   }
 )

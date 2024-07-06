@@ -33,14 +33,23 @@ class ScheduleDao {
     return await ScheduleModel.findOne({ where: { id }, include: UserModel })
   }
 
-  async getScheduleList(pageNumber, rowsPerPage) {
-    const scheduleQuery = `SELECT s.id, s.userId, u.nickname, s.date, s.times, s.availableTimes\n` +
+  async getScheduleList(pageNumber, rowsPerPage, date, userId) {
+    let scheduleQuery = `SELECT s.id, s.userId, u.nickname, s.date, s.times, s.availableTimes\n` +
       `FROM schedules s\n` +
       `JOIN lin_user u ON s.userId = u.id\n` +
       `JOIN lin_user_group ug ON s.userId = ug.user_id\n` +
       `JOIN lin_group g ON ug.group_id = g.id\n` +
-      `WHERE name = '工作人员'\n` +
-      `ORDER BY s.id LIMIT ${rowsPerPage} OFFSET ${(pageNumber) * rowsPerPage}`
+      `WHERE name = '工作人员'\n`
+
+    if (date) {
+      scheduleQuery += `AND s.date = '${date}'\n`
+    }
+
+    if (userId) {
+      scheduleQuery += `AND s.userId = ${userId}\n`
+    }
+
+    scheduleQuery += `ORDER BY s.id LIMIT ${rowsPerPage} OFFSET ${(pageNumber) * rowsPerPage}`
 
     const schedules = await sequelize.query(
       scheduleQuery,

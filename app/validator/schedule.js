@@ -1,4 +1,4 @@
-import { LinValidator, Rule } from 'lin-mizar';
+import { LinValidator, Rule, config } from 'lin-mizar';
 
 const USER_ID_RULE = new Rule('isInt', 'user_id must be a positive integer', { min: 1 })
 const DATE_RULE = new Rule('matches', "date must follow format 'YYYY-MM-DD'", '^[0-9]{4}-(((0[13578]|(10|12))-(0[1-9]|[1-2][0-9]|3[0-1]))|(02-(0[1-9]|[1-2][0-9]))|((0[469]|11)-(0[1-9]|[1-2][0-9]|30)))$')
