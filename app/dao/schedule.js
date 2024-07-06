@@ -1,5 +1,5 @@
 import { RepeatException, ParametersException, NotFound, Failed, logger } from 'lin-mizar';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { UserDao } from '../dao/user'
 import { ScheduleModel } from '../model/schedule'
 import { UserModel } from '../model/user';
@@ -34,14 +34,22 @@ class ScheduleDao {
   }
 
   async getScheduleList(pageNumber, rowsPerPage) {
-    const scheduleQuery = `SELECT s.* \n` +
+    const scheduleQuery = `SELECT s.id, s.userId, u.nickname, s.date, s.times, s.availableTimes\n` +
       `FROM schedules s\n` +
+      `JOIN lin_user u ON s.userId = u.id\n` +
       `JOIN lin_user_group ug ON s.userId = ug.user_id\n` +
       `JOIN lin_group g ON ug.group_id = g.id\n` +
       `WHERE name = '工作人员'\n` +
       `ORDER BY s.id LIMIT ${rowsPerPage} OFFSET ${(pageNumber) * rowsPerPage}`
 
-    const schedules = await sequelize.query(scheduleQuery, { model: ScheduleModel, mapToModel: true })
+    const schedules = await sequelize.query(
+      scheduleQuery,
+      {
+        nest: true,
+        type: QueryTypes.SELECT,
+        raw: true
+      }
+    )
 
     return {
       schedules,
