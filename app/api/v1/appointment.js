@@ -1,6 +1,6 @@
 import { LinRouter, disableLoading } from 'lin-mizar';
 import { AppointmentValidator } from '../../validator/appointment';
-import { PositiveIdValidator } from '../../validator/common';
+import { PageSystemValidator, PositiveIdValidator } from '../../validator/common';
 import { getSafeParamId } from '../../lib/util';
 import { adminRequired, groupRequired } from '../../middleware/jwt';
 import { AppointmentDao } from '../../dao/appointment';
@@ -45,6 +45,23 @@ appointmentApi.linGet(
   async ctx => {
     const appointments = await appointmentDto.getAllAppointments()
     ctx.json(appointments)
+  }
+)
+
+appointmentApi.linGet(
+  'getAllAppointmentsGroupByPage',
+  '/results/group/by/page',
+  appointmentApi.permission('查看第N页的预约'),
+  adminRequired,
+  async ctx => {
+    const v = await new PageSystemValidator().validate(ctx)
+    ctx.json(await appointmentDto.getAppointmentList(
+      v.get('query.pageNumber'),
+      v.get('query.rowsPerPage'),
+      v.get('query.dateTime'),
+      v.get('query.userId'),
+      v.get('query.memberId'),
+    ))
   }
 )
 

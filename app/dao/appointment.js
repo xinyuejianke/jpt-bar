@@ -4,7 +4,7 @@ import { UserDao } from '../dao/user'
 import { MemberDao } from '../dao/member'
 import { MembershipDao } from '../dao/membership'
 import { ScheduleDao } from '../dao/schedule'
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import sequelize from '../lib/db';
 import { UserModel } from '../model/user';
 import { MemberModel } from '../model/member';
@@ -54,6 +54,53 @@ class AppointmentDao {
     return await AppointmentModel.findAll({
       include: [{ model: UserModel }, { model: MemberModel }]
     })
+  }
+
+  async getAppointmentList(pageNumber, rowsPerPage, dateTime, userId, memberId) {
+    let appointmentQuery = "SELECT\n " +
+      "a.id, a.userId, u.nickname, a.memberId, m.nickname, a.dateTime, a.comment, a.advice\n" +
+      "FROM appointments a\n" +
+      "JOIN lin_user u ON u.id = a.userId\n" +
+      "JOIN lin_user_group ug ON a.userId = ug.user_id \n" +
+      "JOIN lin_group g ON ug.group_id = g.id \n" +
+      "JOIN member m ON a.memberId = m.id\n" +
+      "WHERE g.name = '工作人员' AND a.delete_time IS NULL\n"
+
+    const queryFilter = {}
+    if (dateTime) {
+      appointmentQuery.concat(`AND a.dateTime = '${dateTime}'\n`)
+      queryFilter.dateTime = dateTime
+    }
+
+    if (userId) {
+      appointmentQuery += `AND a.userId = ${userId}\n`
+      queryFilter.userId = userId
+    }
+
+    if (memberId) {
+      appointmentQuery += `AND a.memberId = ${memberId}\n`
+      queryFilter.memberId = memberId
+    }
+
+    appointmentQuery += `ORDER BY a.id LIMIT ${rowsPerPage} OFFSET ${(pageNumber) * rowsPerPage}`
+
+    const appointments = await sequelize.query(
+      appointmentQuery,
+      {
+        nest: true,
+        type: QueryTypes.SELECT,
+        raw: true
+      }
+    )
+
+    const totalAppointments = await AppointmentModel.findAndCountAll({ where: queryFilter })
+
+    return {
+      appointments,
+      pageNumber: parseInt(pageNumber),
+      rowsPerPage: parseInt(rowsPerPage),
+      totalAppointments: totalAppointments.count
+    }
   }
 
   async getHistoricalAppointments(userId) {

@@ -34,7 +34,11 @@ class PageSystemValidator extends LinValidator {
     ];
     this.userId = [
       new Rule('isOptional', '', config.getItem('pageDefault')),
-      new Rule('isInt', 'rowsPerPage 必须为整数，且大于等于1', { min: 1 })
+      new Rule('isInt', 'userId 必须为整数，且大于等于1', { min: 1 })
+    ]
+    this.memberId = [
+      new Rule('isOptional', '', config.getItem('pageDefault')),
+      new Rule('isInt', 'memberId必须为整数，且大于等于1', { min: 1 })
     ]
     this.date = [
       new Rule('isOptional'),
