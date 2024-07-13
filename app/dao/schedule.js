@@ -39,7 +39,7 @@ class ScheduleDao {
       `JOIN lin_user u ON s.userId = u.id\n` +
       `JOIN lin_user_group ug ON s.userId = ug.user_id\n` +
       `JOIN lin_group g ON ug.group_id = g.id\n` +
-      `WHERE name = '工作人员'\n`
+      `WHERE name = '工作人员' AND s.delete_time IS NULL\n`
 
     if (date) {
       scheduleQuery += `AND s.date = '${date}'\n`
