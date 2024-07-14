@@ -58,7 +58,8 @@ class AppointmentDao {
 
   async getAppointmentList(pageNumber, rowsPerPage, dateTime, userId, memberId) {
     let appointmentQuery = "SELECT\n " +
-      "a.id, a.userId, u.nickname userNickname, a.memberId, m.nickname AS memberNickname, a.dateTime, a.comment, a.advice\n" +
+      "a.id, a.userId, a.memberId, a.dateTime, a.comment, a.advice,\n" +
+      "u.nickname userNickname, m.nickname AS memberNickname\n" +
       "FROM appointments a\n" +
       "JOIN lin_user u ON u.id = a.userId\n" +
       "JOIN lin_user_group ug ON a.userId = ug.user_id \n" +
