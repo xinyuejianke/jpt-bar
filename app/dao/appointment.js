@@ -66,41 +66,44 @@ class AppointmentDao {
       "JOIN lin_group g ON ug.group_id = g.id \n" +
       "JOIN member m ON a.memberId = m.id\n" +
       "WHERE g.name = '工作人员' AND a.delete_time IS NULL\n"
+    
+    let countQuery = "SELECT count(id) AS count FROM appointments a\n" + 
+      "WHERE delete_time IS NULL\n"
 
-    const queryFilter = {}
     if (dateTime) {
-      appointmentQuery.concat(`AND a.dateTime = '${dateTime}'\n`)
-      queryFilter.dateTime = dateTime
+      const dateTimeFilter = `AND a.dateTime LIKE '${dateTime}%'\n`
+      appointmentQuery += dateTimeFilter
+      countQuery += dateTimeFilter
     }
 
     if (userId) {
-      appointmentQuery += `AND a.userId = ${userId}\n`
-      queryFilter.userId = userId
+      const userIdFilter = `AND a.userId = ${userId}\n`
+      appointmentQuery += userIdFilter
+      countQuery += userIdFilter
     }
 
     if (memberId) {
-      appointmentQuery += `AND a.memberId = ${memberId}\n`
-      queryFilter.memberId = memberId
+      const memberIdFilter = `AND a.memberId = ${memberId}\n`
+      appointmentQuery += memberIdFilter
+      countQuery += memberIdFilter
     }
 
     appointmentQuery += `ORDER BY a.id LIMIT ${rowsPerPage} OFFSET ${(pageNumber) * rowsPerPage}`
 
-    const appointments = await sequelize.query(
-      appointmentQuery,
-      {
-        nest: true,
-        type: QueryTypes.SELECT,
-        raw: true
-      }
-    )
+    const queryConfig = {
+      nest: true,
+      type: QueryTypes.SELECT,
+      raw: true
+    }
 
-    const totalAppointments = await AppointmentModel.findAndCountAll({ where: queryFilter })
+    const appointments = await sequelize.query(appointmentQuery, queryConfig)
+    const totalAppointments = (await sequelize.query(countQuery, queryConfig))[0].count
 
     return {
       appointments,
       pageNumber: parseInt(pageNumber),
       rowsPerPage: parseInt(rowsPerPage),
-      totalAppointments: totalAppointments.count
+      totalAppointments
     }
   }
 
